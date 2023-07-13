@@ -5,6 +5,7 @@
   "version": "1.0.0",
   "author": "biniruu",
   "license": "0BSD",
+  "homepage": "https://biniruu.github.io/dev-flavoured-blog/",
   "starter-name": "gatsby-starter-minimal-blog",
   "scripts": {
     "build": "gatsby build",
@@ -13,7 +14,8 @@
     "build:cypress": "cross-env CYPRESS_SUPPORT=y yarn build",
     "start": "gatsby develop",
     "serve": "gatsby serve",
-    "clean": "gatsby clean"
+    "clean": "gatsby clean",
+    "deploy": "yarn clean && yarn build && gh-pages -d public"
   },
   "dependencies": {
     "@lekoarts/gatsby-theme-minimal-blog": "^6.0.5",
@@ -33,6 +35,7 @@
     "cross-env": "^7.0.3",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "gh-pages": "^5.0.0",
     "postcss-html": "^1.5.0",
     "prettier": "^3.0.0",
     "stylelint": "^15.10.1",
