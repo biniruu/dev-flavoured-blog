@@ -17,6 +17,7 @@ node_modules/
 
 .cache/
 public
+dummy-content
 
 src/gatsby-types.d.ts
  
