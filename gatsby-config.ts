@@ -11,7 +11,7 @@ const config: GatsbyConfig = {
     siteTitle: `할짝 웹 개발`,
     siteTitleAlt: `할짝 웹 개발`,
     siteHeadline: `할짝 웹 개발`,
-    siteUrl: `https://minimal-blog.lekoarts.de`,
+    siteUrl: `https://biniruu.github.io/dev-flavoured-blog`,
     siteDescription: `맛만 보는 웹 개발`,
     siteImage: `/banner.jpg`,
     siteLanguage: `ko`,
