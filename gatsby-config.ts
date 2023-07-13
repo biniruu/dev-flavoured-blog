@@ -18,6 +18,7 @@ const config: GatsbyConfig = {
     author: `biniruu`,
   },
   trailingSlash: `never`,
+  pathPrefix: '/dev-flavoured-blog',
   plugins: [
     {
       resolve: `@lekoarts/gatsby-theme-minimal-blog`,
@@ -48,7 +49,7 @@ const config: GatsbyConfig = {
     {
       resolve: `gatsby-plugin-sitemap`,
       options: {
-        output: `/`,
+        output: `/dev-flavoured-blog`,
       },
     },
     {
@@ -57,7 +58,7 @@ const config: GatsbyConfig = {
         name: `할짝 웹 개발`,
         short_name: `할짝 웹 개발`,
         description: `맛만 보는 웹 개발`,
-        start_url: `/`,
+        start_url: `/dev-flavoured-blog`,
         background_color: `#fff`,
         // This will impact how browsers show your PWA/website
         // https://css-tricks.com/meta-theme-color-and-trickery/
