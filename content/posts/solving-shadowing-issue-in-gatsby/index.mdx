@@ -1,0 +1,20 @@
+---
+title: 쉐도잉 파일을 추가/수정해도 화면에 반영되지 않는 문제 해결하기
+date: 2023-07-13
+description: 캐싱이 문제다.
+tags:
+  - gatsby
+  - shadowing
+---
+
+`gatsby clean`을 실행한 다음에 다시 서버를 실행해보자.
+
+<br />
+
+```json title=package.json
+{
+  "scripts": {
+    "clean": "gatsby clean"
+  }
+}
+```
