@@ -1,0 +1,60 @@
+---
+title: html에서 name 속성을 a 태그에 써도 될까?
+date: 2023-07-13
+description: 일단 안 된다.
+tags:
+  - html
+  - name
+  - attribute
+---
+
+a 태그에 `name` 속성을 사용한 사이트를 발견했다.
+
+<br />
+
+```html
+<h2>
+  <a name="a1-run-only-for-browser-users" href="#a1-run-only-for-browser-users" class=""></a>
+  A.1 - Run Only for browser users
+</h2>
+```
+
+[NextJS - Access window and localStorage](https://dev.to/ariyou2000/nextjs-access-window-and-localstorage-10i3#a1-run-only-for-browser-users)
+
+<br />
+
+근데 이거, 표준에 맞지는 않는 코드다. w3schools에서는 다음 태그에서만 `name` 속성을 사용하도록 지정하고 있다.
+
+<br />
+
+**name 태그를 사용할 수 있는 태그 목록**
+
+- button
+- fieldset
+- form
+- iframe
+- input
+- map
+- meta
+- object
+- output
+- param
+- select
+- textarea
+
+<br />
+
+대신 다음 방식을 사용해 보자.
+
+<br />
+
+```html
+<h2 id="#a1-run-only-for-browser-users">A.1 - Run Only for browser users</h2>
+```
+
+<br />
+
+## 참고 자료
+
+[HTML name Attribute](https://www.w3schools.com/tags/att_name.asp)  
+[\<a name=\"\"\> HTML Attribute](https://html.com/attributes/a-name/)
