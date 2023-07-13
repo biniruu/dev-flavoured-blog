@@ -1,0 +1,30 @@
+---
+title: 현재 코드가 동작하는 환경이 브라우저인지 서버인지 확인하는 방법
+date: 2023-07-13
+description: process.browser 아님
+tags:
+  - nodejs
+  - process
+  - window
+---
+
+`typeof window !== 'undefined'`를 사용하세요.
+
+<br />
+
+```js
+if (typeof window !== 'undefined') {
+  return null
+}
+```
+
+<br />
+
+> process.browser는 deprecated 되었어요.
+
+<br />
+
+## 참고 자료
+
+[Server-side only method to ensure server-only code is never sent to the browser](https://github.com/vercel/next.js/issues/5354#issuecomment-520305040)  
+[NextJS - Access window and localStorage](https://dev.to/ariyou2000/nextjs-access-window-and-localstorage-10i3#a1-run-only-for-browser-users)
