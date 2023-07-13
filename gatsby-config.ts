@@ -21,6 +21,12 @@ const config: GatsbyConfig = {
   pathPrefix: '/dev-flavoured-blog',
   plugins: [
     {
+      resolve: `gatsby-plugin-catch-links`,
+      options: {
+        excludePattern: /(excluded-link|external)/,
+      },
+    },
+    {
       resolve: `@lekoarts/gatsby-theme-minimal-blog`,
       // See the theme's README for all available options
       options: {
