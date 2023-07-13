@@ -1,7 +1,7 @@
 ---
 title: ts-node 사용 시 발생하는 "Unknown file extension '.ts' for …" 에러 해결하기
 date: 2021-10-02
-description: tsconfig 수정으로 해결해보자.
+description: tsconfig를 수정하면 될지도...
 tags:
   - typescript
   - tsnode
@@ -10,13 +10,13 @@ tags:
 
 ## 사건의 발단
 
-index.ts 파일 실행을 위해 `npx ts-node index.ts`를 실행하니 다음과 같은 에러가 발생했다.
+index.ts 파일 실행을 위해 `npx ts-node index.ts`를 실행하니 다음과 같은 에러가 발생했어요.
 
 ![타입스크립트 에러](./error.png)
 
 ## 사건 해결
 
-tsconfig.json에서 `compilerOptions.esModuleInterop` 옵션을 `true` 로 설정한다.
+tsconfig.json에서 `compilerOptions.esModuleInterop` 옵션을 `true` 로 설정합니다.
 
 <br />
 
@@ -30,7 +30,7 @@ tsconfig.json에서 `compilerOptions.esModuleInterop` 옵션을 `true` 로 설�
 
 <br />
 
-이제 ts-node 명령어에 `--esm` 옵션을 붙여서 실행하면 문제 없이 실행된다.
+이제 ts-node 명령어에 `--esm` 옵션을 붙여서 실행하면 문제 없이 실행될 거예요.
 
 <br />
 
