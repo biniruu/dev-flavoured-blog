@@ -1,0 +1,68 @@
+---
+title: 얕은 복사와 깊은 복사는 어떻게 다를까?
+date: 2023-08-05
+description: 은근히 헷갈리는 얕은 복사와 깊은 복사 차이를 간단하게 알아보자.
+tags:
+  - javascript
+  - shallow copy
+  - deep copy
+---
+
+예전에 한 기술면접 컨설팅 자리에 참여한 적이 있어요. 멘토가 문제를 내면 나머지 사람들이 답변을 하고, 다시 멘토가 문제의 의도와 답변 방법을 설명해 주는 자리였어요. 멘토는 이름만 대면 누구나 아는 대기업에서 근무하는 프론트엔드 개발자였고요.
+
+그날 나왔던 문제 중 인상에 남는 것이 있었어요.
+
+<br />
+
+> `Object.assign()`으로 복사한 객체는 얕은 복사일까 깊은 복사일까요?
+
+<br />
+
+그날 모인 사람은 저를 제외하고 모두 신입 개발자를 준비하고 있었기에 답변을 못 하고 있었죠.
+
+저는 당당하게 얕은 복사라고 대답했어요. 그러자 멘토가 살짝 미소를 지었어요. 멘토가 원하는 오답을 말했기 때문이었겠죠.
+
+<br />
+
+## 누구 말이 옳을까?
+
+멘토는 제게 확신하느냐고 물었어요. 저는 확신한다고 했어요. 이전에 제가 저 둘을 제대로 이해하지 못했기 때문에 꽤 시간을 들여 학습했던 적이 있거든요.
+
+역시나 멘토는 제 대답이 틀렸다고 이야기했어요. 정답은 첫 번째 깊이(depth)만 깊은 복사고, 두 번째 깊이부터는 얕은 복사라고 하더라고요.
+
+제가 다시 물었어요. "제가 알기로는 모든 깊이를 전부 복사하는 것이 깊은 복사고, 첫 번째 깊이만 복사하는 것은 얕은 복사로 알고 있는데 아니었나요?"
+
+멘토는 그렇지 않다고 했어요. MDN에서도 첫 번째 깊이만 깊은 복사를 하며, 나머지는 얕은 복사를 한다고 설명에 적어놓았다더라고요.
+
+대기업에 다니는 시니어 개발자 말을 저 같은 주니어가 어떻게 반박하겠어요. 그렇지만 억울하긴 했어요. 분명히 제가 알던 내용과 달랐으니까요.
+
+<br />
+
+## 얕은 복사와 깊은 복사
+
+집에 와서 다시 찾아보았더니 아무래도 제가 옳았던 것 같아요. MDN에서는 [얕은 복사](<https://developer.mozilla.org/en-US/docs/Glossary/Shallow_copy#:~:text=In%20JavaScript%2C%20all%20standard%20built%2Din%20object%2Dcopy%20operations%20(spread%20syntax%2C%20Array.prototype.concat()%2C%20Array.prototype.slice()%2C%20Array.from()%2C%20Object.assign()%2C%20and%20Object.create())%20create%20shallow%20copies%20rather%20than%20deep%20copies.>)를 다음과 같이 설명하고 있거든요.
+
+<br />
+
+> In JavaScript, all standard built-in object-copy operations (spread syntax, Array.prototype.concat(), Array.prototype.slice(), Array.from(), Object.assign(), and Object.create()) create shallow copies rather than deep copies.  
+> 자바스크립트에서 모든 표준 내장 객체복사 연산자(전개 연산자, Array.prototype.concat(), Array.prototype.slice(), Array.from(), Object.assign(), Object.create())는 깊은 복사 대신 얕은 복사를 실행합니다.
+
+<br />
+
+이외에도 얕은 복사와 깊은 복사를 설명하는 여러 글에서, 얕은 복사는 첫 번째 깊이까지만 값 자체를 복사하며 나머지는 참조를 복사한다고 설명하고 있어요.
+
+기억하기 쉽게 <u>단순화 해서</u> 정리하자면, 얕은 복사와 깊은 복사의 차이는 복사하려는 객체의 참조를 가지고 있는지 없는지로 구분할 수 있다고 봐도 좋을 듯해요.
+
+- **얕은 복사**: 복사하려는 대상이 되는 객체의 참조가 포함되어 있다. 객체의 참조만 복사하거나, 첫 번째 깊이의 값만을 복사하고 나머지는 참조를 복사하기 때문이다.
+- **깊은 복사**: 복사하려는 대상이 되는 객체 자체를 복사하기 때문에 참조는 포함되지 않는다.
+
+<br />
+
+## 참고 자료
+
+[Shallow copy](https://developer.mozilla.org/en-US/docs/Glossary/Shallow_copy)  
+[Deep copy](https://developer.mozilla.org/en-US/docs/Glossary/Deep_copy)  
+[How to differentiate between deep and shallow copies in JavaScript](https://www.freecodecamp.org/news/copying-stuff-in-javascript-how-to-differentiate-between-deep-and-shallow-copies-b6d8c1ef09cd/)  
+[Cloning an Object in Javascript: Shallow Copy vs. Deep Copy](https://medium.com/version-1/cloning-an-object-in-javascript-shallow-copy-vs-deep-copy-fa8acd6681e9)  
+[[Javascript] shallow copy, deep copy | 원시값과 객체의 copy](https://roseline.oopy.io/dev/javascript-back-to-the-basic/shallow-copy-deep-copy)  
+[Javascript #6 객체의 얕은 복사와 깊은 복사에 대해 알아봅니다.](https://falsy.me/javascript-6-객체의-얕은-복사와-깊은-복사에-대해-알아봅니다/)
