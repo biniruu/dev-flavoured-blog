@@ -1,0 +1,25 @@
+---
+title: ESLint couldn't find the config "prettier" to extend from 에러 해결하기
+date: 2023-08-10
+description: eslint와 prettier를 함께 사용할 때 만날 수 있는 에러예요.
+tags:
+  - eslint
+  - prettier
+  - error
+---
+
+eslint와 prettier를 함께 사용하고, prettier 에러를 eslint 에러로 통합해서 노출시키기 위해 `eslint-plugin-prettier` 패키지를 설치했다면, eslint를 실행했을 때 이런 에러를 만날 수 있어요.
+
+<br />
+
+> ESLint: 8.46.0
+
+> ESLint couldn't find the config "prettier" to extend from. Please check that the name of the config is correct.
+
+> The config "prettier" was referenced from the config file in "...".
+
+<br />
+
+이 에러는 [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier) 패키지를 설치하면 사라져요.
+
+끝!!
