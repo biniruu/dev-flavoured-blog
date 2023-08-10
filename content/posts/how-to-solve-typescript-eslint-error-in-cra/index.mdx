@@ -1,0 +1,65 @@
+---
+title: ESLint couldn't determine the plugin "@typescript-eslint" uniquely 에러 해결하기
+date: 2023-08-11
+description: 원인은 모르겠지만 일단 해결은 해봅시다!
+tags:
+  - eslint
+  - error
+  - typescript
+---
+
+## 사건의 발단
+
+Create React App으로 설치한 개발 환경에서 eslint를 실행했더니 다음과 같은 에러가 나왔어요.
+
+<br />
+
+> ESLint couldn't determine the plugin "@typescript-eslint" uniquely.
+
+> - .../node_modules/eslint-config-react-app/node_modules/@typescript-eslint/eslint-plugin/dist/index.js (loaded in ".eslintrc.js » eslint-config-react-app#overrides[0]")
+> - .../node_modules/@typescript-eslint/eslint-plugin/dist/index.js (loaded in ".eslintrc.js » plugin:@typescript-eslint/recommended-requiring-type-checking » ./configs/base")
+
+> Please remove the "plugins" setting from either config or remove either plugin installation.
+
+<br />
+
+아마 `eslint-config-react-app`에서 설치한 dependency인 `@typescript-eslint/eslint-plugin`와 제가 설치한 `@typescript-eslint/eslint-plugin`의 버전이 서로 달라서 이런 문제가 발생하지 않나 싶지만, 문제가 발생하는 확실한 원인이 뭔지는 모르겠어요.
+
+제 개발 환경 설정에서 문제와 관련된 설정은 다음과 같이 되어 있어요.
+
+<br />
+
+**CRA 설치 시 함께 설치되는 패키지 버전**  
+@typescript-eslint/eslint-plugin: v5.5.0
+
+_이 버전은 `eslint-config-react-app` 패키지의 의존성 패키지로 설치된 `@typescript-eslint/eslint-plugin`의 버전이에요._
+
+**내가 설치한 패키지 버전**  
+@typescript-eslint/eslint-plugin: v6.3.0
+
+**eslint 설정 중 extends에 추가한 추천 규칙**
+
+```javascript title=.eslintrc.js
+module.exports = {
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'react-app',
+    ...
+  ],
+}
+```
+
+<br />
+
+## 해결 방법
+
+extends에서 `plugin:@typescript-eslint/recommended-requiring-type-checking`를 삭제하면 문제가 해결되긴 해요. 그런데 그건 이 문제를 만난 사람이라면 누구도 원하지 않을 거예요.
+
+어쨌든 버전이 서로 다른 패키지가 중복 설치되어 있으니 제가 설치한 패키지를 삭제해 봤어요.
+
+그랬더니 문제 해결!!
+
+이렇게 하면 최신 버전에서 제공하는 기능을 사용하지 못하는데... 어쩔 수 없죠. 일단 프로젝트는 진행해야 하니까.
+
+저는 더 좋은 방법을 찾아봐야겠어요.🥲
