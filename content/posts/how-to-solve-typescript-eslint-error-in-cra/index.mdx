@@ -8,6 +8,8 @@ tags:
   - typescript
 ---
 
+import { Link } from 'gatsby'
+
 ## 사건의 발단
 
 Create React App으로 설치한 개발 환경에서 eslint를 실행했더니 다음과 같은 에러가 나왔어요.
@@ -15,10 +17,10 @@ Create React App으로 설치한 개발 환경에서 eslint를 실행했더니 �
 <br />
 
 > ESLint couldn't determine the plugin "@typescript-eslint" uniquely.
-
+>
 > - .../node_modules/eslint-config-react-app/node_modules/@typescript-eslint/eslint-plugin/dist/index.js (loaded in ".eslintrc.js » eslint-config-react-app#overrides[0]")
 > - .../node_modules/@typescript-eslint/eslint-plugin/dist/index.js (loaded in ".eslintrc.js » plugin:@typescript-eslint/recommended-requiring-type-checking » ./configs/base")
-
+>
 > Please remove the "plugins" setting from either config or remove either plugin installation.
 
 <br />
@@ -58,8 +60,28 @@ extends에서 `plugin:@typescript-eslint/recommended-requiring-type-checking`를
 
 어쨌든 버전이 서로 다른 패키지가 중복 설치되어 있으니 제가 설치한 패키지를 삭제해 봤어요.
 
-그랬더니 문제 해결!!
+<br />
 
-이렇게 하면 최신 버전에서 제공하는 기능을 사용하지 못하는데... 어쩔 수 없죠. 일단 프로젝트는 진행해야 하니까.
+```bash
+yarn remove @typescript-eslint/eslint-plugin
+```
 
-저는 더 좋은 방법을 찾아봐야겠어요.🥲
+<br />
+
+빠밤!! 문제 해결🎉🎉
+
+이렇게 하면 최신 버전에서 제공하는 기능을 사용하지 못하는데... 어쩔 수 없죠. 일단 프로젝트는 진행해야 하니까.🥲
+
+그.런.데
+
+만약 저렇게 했는데 다음과 같은 에러가 발생한다면?
+
+<br />
+
+> Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Failed to load plugin '@typescript-eslint' declared in '.eslintrc.js': Package subpath './dist/referencer/Visitor' is not defined by "exports" in ...
+
+<br />
+
+이 문제는 <Link to="/failed-to-load-plugin-typescript-eslint-declared-in-에러-해결하기">Failed to load plugin '@typescript-eslint' declared in ... 에러 해결하기</Link>를 보면 해결할 수 있어요.🙌🏻
+
+저는 더 좋은 방법 있나 찾으러 가야겠어요.🥲
