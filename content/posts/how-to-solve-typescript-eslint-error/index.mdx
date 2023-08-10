@@ -1,0 +1,24 @@
+---
+title: Failed to load plugin '@typescript-eslint' declared in ... 에러 해결하기
+date: 2023-08-10
+description: 너무나 간단한 해결 방법
+tags:
+  - eslint
+  - error
+  - typescript
+---
+
+eslint 환경 설정을 마친 후에 실행했을 때 다음과 같은 에러가 나온다면?
+
+<br />
+
+> Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Failed to load plugin '@typescript-eslint' declared in '.eslintrc.js': Package subpath './dist/referencer/Visitor' is not defined by "exports" in ...
+
+<br />
+
+문제 해결을 위해 다음 두 가지 방법을 시도해보세요.
+
+1. eslint와 관련된 패키지를 최신 버전으로 업데이트 해보세요.
+2. node_modules 폴더를 삭제한 후에 `npm install` 또는 `yarn install`로 패키지를 다시 설치해 보세요.
+
+이 방법으로도 안 되면 다른 방법을 더 찾아봐야겠지만, 아마 이것만으로 해결이 될 거예요.🙏🏻
