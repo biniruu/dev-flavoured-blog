@@ -1,0 +1,98 @@
+---
+title: React에서 CORS 정책을 우회하기 위해 package.json에 proxy를 설정했다. 그 다음엔?
+date: 2023-08-14
+description: tsconfig를 수정하면 될지도...
+tags:
+  - react
+  - cors
+  - proxy
+---
+
+## 사건의 발단
+
+외부에서 데이터를 받아와 화면에서 보여주려고 했는데
+
+<br />
+
+```javascript
+function Comp() {
+  const [data, setData] = useState('')
+
+  useEffect(() => {
+    // 1. 데이터를 받아와서
+    fetch('https://news.sample.com/channel/rightbar?officeId=296')
+      .then(res => res.json())
+      .then(res => setData(res.data))
+      .catch(console.error)
+  }, [])
+
+  return (
+    <>
+      <h1>NEWS</h1>
+      // 2. 화면에 보여준다
+      <div>{data}</div>
+    </>
+  )
+}
+```
+
+<br />
+
+그만 CORS 에러를 마주치고 말았다.
+
+<br />
+
+> Access to fetch at 'https://news.sample.com/channel/rightbar?officeId=296' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+
+<br />
+
+프록시로 우회해야지😜 Create React App으로 설치한 React니까 package.json에 proxy 옵션만 추가해주면 되겠지?
+
+<br />
+
+```json title=package.json
+{
+  "proxy": "https://news.sample.com"
+}
+```
+
+<br />
+
+완성!! 어디 브라우저 새로고침을...
+
+엇😳 에러가 그대로네. 왜지?
+
+<br />
+
+## 끝날 때까지 끝난 게 아니다
+
+React에서 가장 쉽게 프록시를 설정할 수 있는 방법으로 package.json에 proxy 옵션을 설정하는 것을 잘 알고 계실 텐데요. 이게 처음 하는 사람은 딱 여기까지만 하면 되는 줄 아는 경우도 있더라고요.
+
+프록시를 설정하고 나면 해야 할 일이 하나 더 있어요. 바로 데이터를 가지고 오는 부분에서 proxy에 입력한 url을 삭제하는 것이에요.
+
+<br />
+
+```javascript
+function Comp() {
+  const [data, setData] = useState('')
+
+  useEffect(() => {
+    // https://news.sample.com를 삭제한다
+    fetch('/channel/rightbar?officeId=296')
+      .then(res => res.json())
+      .then(res => setData(res.data))
+      .catch(console.error)
+  }, [])
+
+  return (
+    <>
+      <h1>NEWS</h1>
+      <div>{data}</div>
+    </>
+  )
+}
+```
+
+<br />
+
+이제 에러는 사라지고 의도한 대로 화면에 데이터가 출력될 거에요.🥳
