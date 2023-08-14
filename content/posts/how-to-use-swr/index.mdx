@@ -1,0 +1,109 @@
+---
+title: 기본적인 SWR 사용 방법
+date: 2023-08-16
+description: 일단 시작 먼저 해봅시다.
+tags:
+  - swr
+---
+
+SWR은 설정과 사용 방법이 간단하기 때문에 비교적 쉽게 배워서 사용할 수 있는 라이브러리예요. 이 글에서는 기본적인 SWR 사용법을 간략하게 소개해드릴게요.
+
+## 설치
+
+`SWR` 패키지 외에 특별히 설치해야 할 것은 없어요.
+
+<br />
+
+```bash
+yarn add swr
+```
+
+<br />
+
+eslint 설정을 위해 SWR에서 공식적으로 내놓은 [@swrlab/eslint-plugin-swr](https://www.npmjs.com/package/@swrlab/eslint-plugin-swr)도 있지만, 저는 `@typescript-eslint` 관련 패키지와 충돌이 생겨 결국 사용하지 않기로 했어요.
+
+<br />
+
+## useSWR
+
+`useSWR`은 SWR 사용에서 가장 기본이 되는 훅이에요. 리액트 훅으로 만들어졌기 때문에 사용 방식도 리액트 훅과 동일하게 맞춰야 해요.
+
+먼저 `useSWR` 훅을 불러와 첫 번째 인자에 api 호출 주소를 입력해주세요. SWR에서는 이것을 `key`로 인식해요. 동일한 `key`를 가진 `useSWR`은 동일한 데이터를 반환하게 돼요.
+
+두 번째 인자에는 데이터를 받아 오는 fetcher 함수를 만들어주세요. fetcher 함수는 Fetch api, Axios, GraphQL 등으로 만들 수 있어요. fetcher 함수는 항상 Promise를 반환해야 한다는 점에 유의해 주세요.
+
+다음은 fetcher 함수를 만드는 예시예요.
+
+`const fetcher = (url: string) => fetch(url).then(res => res.json())`
+
+이제 실제 코드를 보면서 감을 잡아 보세요.
+
+<br />
+
+```typescript
+import useSWR from 'swr'
+
+interface Users {
+  ...
+}
+
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
+export default function SWR() {
+  const { data } = useSWR<Users>('https://reqres.in/api/users/2', fetcher)
+
+  return (
+    <div>
+      <p>{data?.support.text}</p>
+    </div>
+  )
+}
+```
+
+<br />
+
+이제 서버에서 받아온 데이터는 캐싱이 된 상태로 `data` 변수에 담겼어요.
+
+<br />
+
+## Automatic Revalidation
+
+SWR은 기본적으로 브라우저 화면이 다시 포커싱 될 때마다, 그러니까 현재 브라우저 화면에서 다른 탭 또는 다른 앱으로 이동했다가 돌아오면 SWR이 직전에 받아온 데이터를 자동으로 서버에 있는 최신 데이터로 업데이트 해 줘요.
+
+이 기능은 기본으로 설정되어 있기 때문에 추가로 설정해야 할 필요가 없어요. 물론 옵션 설정을 변경해서 기능을 비활성화 할 수도 있어요.
+
+이외에도 다양한 Revalidation 방식이 있지만, 여기서는 아주 기본적인 `refreshInterval`만 알아볼게요.
+
+### refreshInterval
+
+`useSWR` 옵션 중 `refreshInterval`이라는 옵션이 있어요. 특정 시간을 지정해주면 해당 시간마다 반복해서 데이터를 갱신해 줘요. 물론 서버로부터 신선한 데이터를 받아와 갱신해 주죠.
+
+시간 단위는 밀리초(ms)예요. 3000으로 설정하면 3초마다 데이터를 갱신할 수 있어요.
+
+<br />
+
+```typescript
+import useSWR from 'swr'
+
+interface Users {
+  ...
+}
+
+<br />
+
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
+export default function SWR() {
+  const { data } = useSWR<Users>('https://reqres.in/api/users/2', fetcher, { refreshInterval: 3000 })
+
+  return (
+    <div>
+      <p>{data?.support.text}</p>
+    </div>
+  )
+}
+```
+
+<br />
+
+SWR에는 이외에도 개발을 편리하게 만들어 주는 기능이 더 있어요. 기회가 되면 다음 글에서 몇 가지 소개해볼게요.
