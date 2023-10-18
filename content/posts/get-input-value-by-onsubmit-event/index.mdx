@@ -1,0 +1,105 @@
+---
+title: form 태그의 onSubmit 속성만으로 input 태그에 입력된 값 가져오기
+date: 2023-10-18
+description: input 태그의 onChange 속성과 useState를 이용하지 않고 form 태그의 onSubmit 속성만으로 input 태그에 입력된 값을 가지고 오는 방법이에요.
+tags:
+  - react
+  - form
+  - input
+---
+
+React에서 input 태그에 입력된 값을 사용하려고 할 때는 일반적으로 input 태그의 `onChange` 속성과 `useState` 훅으로 input에 입력된 글자를 state에 저장해두고, submit이 발생했을 때 그것을 사용해요.
+
+이럴 경우 사용자가 input에 글을 입력할 때마다 리렌더가 발생해요.
+
+<br />
+
+```typescript
+import { useState, type ChangeEvent, type SyntheticEvent } from 'react'
+
+interface FormData {
+  email: {
+    value?: string
+  }
+  password: {
+    value?: string
+  }
+}
+
+export default function Comp {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleSubmit = (e: SyntheticEvent) => {
+    e.preventDefault()
+
+    // doing something
+  }
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const setText = e.target.name === 'email' ? setEmail : setPassword
+    setText(e.target.value)
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="email" name="email" onChange={handleChange} />
+      <input type="password" name="password" onChange={handleChange} />
+      <button type="submit">Submit</button>
+    </form>
+  )
+}
+```
+
+<br />
+
+저는 이게 싫어서 submit이 발생했을 때만 input 태그에 입력된 글을 가지고 와서 사용하고 싶었어요.
+
+이를 위해 위 코드를 아래와 같이 변경했어요. input 태그에서 `onChange` 속성을 사용하는 이벤트 핸들러를 제거하고, form 태그의 `onSubmit` 속성에서 발생하는 이벤트만을 사용하여 input 태그의 value를 가져와 사용하는 방식이에요.
+
+<br />
+
+```typescript
+import { useRef, type SyntheticEvent } from 'react'
+
+interface FormData {
+  email: {
+    value: string
+  }
+  password: {
+    value: string
+  }
+}
+
+export default function Comp {
+  const formRef = useRef<HTMLFormElement>(null)
+
+  const handleSubmit = (e: SyntheticEvent) => {
+    e.preventDefault()
+
+    // event target의 타입 선언
+    const target = e.target as typeof e.target & FormData
+
+    // input 태그의 값을 변수에 할당
+    const email = target.email.value
+    const password = target.password.value
+
+    // input 초기화
+    formRef.current?.reset()
+
+    // doing something
+  }
+
+  return (
+    <form ref={formRef} onSubmit={handleSubmit}>
+      <input type="email" name="email" />
+      <input type="password" name="password" />
+      <button type="submit">Submit</button>
+    </form>
+  )
+}
+```
+
+<br />
+
+이렇게 하면 사용자가 input 태그에 글을 입력하는 동안 리액트 자체에서는 아무런 일도 일어나지 않아요.🥳
