@@ -1,0 +1,374 @@
+---
+title: eslint v8.53에서 deprecate 된 규칙 확인하세요
+date: 2023-11-22
+description: 당장 조치할 필요는 없어요.
+tags:
+  - eslint
+---
+
+eslint 버전 8.53에서는 꽤 많은 규칙이 deprecate 되었어요. 이에 따라 eslint 공식 홈페이지에서는 관련 정보 제공을 위해 블로그에 [Deprecation of formatting rules](https://eslint.org/blog/2023/10/deprecating-formatting-rules/)라는 글을 실었고요.
+
+이 글에서는 버전 8.53에서 어떤 변화가 있었는지 간단히 살펴볼게요.
+
+<br />
+
+## 어떤 규칙이 deprecate 되었을까?
+
+아래에서 좀 더 살펴보겠지만, 이번 버전에서는 formatting 관련 규칙이 대거 deprecate 되었어요.
+
+<ul>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/array-bracket-newline">
+      <code>array-bracket-newline</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/array-bracket-spacing">
+      <code>array-bracket-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/array-element-newline">
+      <code>array-element-newline</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/arrow-parens">
+      <code>arrow-parens</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/arrow-spacing">
+      <code>arrow-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/block-spacing">
+      <code>block-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/brace-style">
+      <code>brace-style</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/comma-dangle">
+      <code>comma-dangle</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/comma-spacing">
+      <code>comma-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/comma-style">
+      <code>comma-style</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/computed-property-spacing">
+      <code>computed-property-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/dot-location">
+      <code>dot-location</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/eol-last">
+      <code>eol-last</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/func-call-spacing">
+      <code>func-call-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/function-call-argument-newline">
+      <code>function-call-argument-newline</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/function-paren-newline">
+      <code>function-paren-newline</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/generator-star-spacing">
+      <code>generator-star-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/implicit-arrow-linebreak">
+      <code>implicit-arrow-linebreak</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/indent">
+      <code>indent</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/jsx-quotes">
+      <code>jsx-quotes</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/key-spacing">
+      <code>key-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/keyword-spacing">
+      <code>keyword-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/linebreak-style">
+      <code>linebreak-style</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/lines-between-class-members">
+      <code>lines-between-class-members</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/lines-around-comment">
+      <code>lines-around-comment</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/max-len">
+      <code>max-len</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/max-statements-per-line">
+      <code>max-statements-per-line</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/multiline-ternary">
+      <code>multiline-ternary</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/new-parens">
+      <code>new-parens</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/newline-per-chained-call">
+      <code>newline-per-chained-call</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-confusing-arrow">
+      <code>no-confusing-arrow</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-extra-parens">
+      <code>no-extra-parens</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-extra-semi">
+      <code>no-extra-semi</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-floating-decimal">
+      <code>no-floating-decimal</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-mixed-operators">
+      <code>no-mixed-operators</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-mixed-spaces-and-tabs">
+      <code>no-mixed-spaces-and-tabs</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-multi-spaces">
+      <code>no-multi-spaces</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-multiple-empty-lines">
+      <code>no-multiple-empty-lines</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-tabs">
+      <code>no-tabs</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-trailing-spaces">
+      <code>no-trailing-spaces</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/no-whitespace-before-property">
+      <code>no-whitespace-before-property</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/nonblock-statement-body-position">
+      <code>nonblock-statement-body-position</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/object-curly-newline">
+      <code>object-curly-newline</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/object-curly-spacing">
+      <code>object-curly-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/object-property-newline">
+      <code>object-property-newline</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/one-var-declaration-per-line">
+      <code>one-var-declaration-per-line</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/operator-linebreak">
+      <code>operator-linebreak</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/padded-blocks">
+      <code>padded-blocks</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/padding-line-between-statements">
+      <code>padding-line-between-statements</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/quote-props">
+      <code>quote-props</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/quotes">
+      <code>quotes</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/rest-spread-spacing">
+      <code>rest-spread-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/semi">
+      <code>semi</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/semi-spacing">
+      <code>semi-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/semi-style">
+      <code>semi-style</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/space-before-blocks">
+      <code>space-before-blocks</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/space-before-function-paren">
+      <code>space-before-function-paren</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/space-in-parens">
+      <code>space-in-parens</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/space-infix-ops">
+      <code>space-infix-ops</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/space-unary-ops">
+      <code>space-unary-ops</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/spaced-comment">
+      <code>spaced-comment</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/switch-colon-spacing">
+      <code>switch-colon-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/template-curly-spacing">
+      <code>template-curly-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/template-tag-spacing">
+      <code>template-tag-spacing</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/wrap-iife">
+      <code>wrap-iife</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/wrap-regex">
+      <code>wrap-regex</code>
+    </a>
+  </li>
+  <li>
+    <a href="https://eslint.org/docs/latest/rules/yield-star-spacing">
+      <code>yield-star-spacing</code>
+    </a>
+  </li>
+</ul>
+
+<br />
+
+## 버전 8.53에서 deprecate 된 규칙이 전하는 의미
+
+이전까지는 eslint에서 formatting 규칙을 제어할 수 있도록 지원했어요. 에러나 경고도 eslint에서 발생시켰고요.
+
+버전 8.53에서 deprecate 된 규칙을 보면 대부분 formatting과 관련이 있어요. 이제 eslint에서 formatting에는 관여하지 않겠다는 의도가 아닌가 싶어요. 버전 9에서도 대부분의 formatter를 제거한다고 밝히기도 했고요.
+
+[버전 9 소개에 실린 관련 정보 확인하기](https://eslint.org/blog/2023/11/whats-coming-in-eslint-9.0.0/#removing-all-formatters-except-stylish%2C-html%2C-json%2C-and-json-with-meta)
+
+<br />
+
+## 앞으로는 어떤 방식으로 formatting을 해야 할까?
+
+eslint에서는 공식적으로 아래 두 formatting 도구를 추천했어요. 특히 prettier는 프론트엔드 개발자에게 익숙한 도구니 이미 eslint와 함께 사용하는 경우가 많을 거라 생각해요.
+
+- [Prettier](https://prettier.io)
+- [dprint](https://dprint.dev)
