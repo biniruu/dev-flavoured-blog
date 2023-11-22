@@ -50,12 +50,8 @@ module.exports = {
      * Rules reference
      * {@link https://eslint.org/docs/latest/rules}
      *
-     * array-bracket-spacing : 대괄호 안에서 간격 허용 여부
      * camelcase : 카멜 케이스 작명 방식 강제
-     * comma-dangle : trailing commas 사용 여부
-     * computed-property-spacing : 계산된 인자(obj[property]) 표시 시 괄호 안에 공백문자 허용 여부
      * eqeqeq : 일치 연산자(===) 사용 강제. 동등 연산자(==) 사용 금지
-     * generator-star-spacing : 제네레이터 함수에서 별표의 위치를 강제
      * new-cap : 'new' 연산자로 인스턴스 생성 시 constructor 함수명의 첫 글자를 대문자로 강제
      * no-array-constructor : Array() 생성자에 배열 리터럴 생성법을 사용해서 배열 생성 금지
      * no-console : 콘솔 사용 금지
@@ -70,23 +66,29 @@ module.exports = {
      * no-unused-vars : 사용하지 않는 변수 금지
      * no-useless-escape : 불필요한 escape 문자 사용 금지. extends에 eslint:recommended를 설정했을 때 동작한다
      * no-var : var로 변수 선언 금지
-     * object-curly-spacing : 중괄호 안에 간격 삽입. objectsInObjects: false 옵션은 사용할 수 없음. prettier의 bracketSpacing에 의해 덮어쓰기 되기 때문
      * prefer-const : 재할당이 이루어지지 않는 변수에 let을 사용했을 경우 const로 변경하도록 강제
      * prefer-rest-params : 함수의 parameter에서 arguments 객체 대신 rest parameter를 사용하도록 강제. e.g. function (...args) {}
      * quotes : 따옴표를 작은따옴표, 큰따옴표, 백틱 중 한 가지만 사용하도록 강제
-     * semi : 세미콜론 사용 여부. 'never' 옵션은 semicolon before self-invoking function을 제외한 모든 세미콜론 사용 금지
-     * sort-imports : import 정렬. ignoreDeclarationSort는 항상 true로 할 것. false로 하면 import 정렬 관련 경고가 발생하는데, 이 경고를 해결할 방법이 없다.
-     * space-before-function-paren : 함수 선언 시 함수명과 괄호 사이에 간격 추가를 강제
+     * sort-imports : import 정렬
+     * sort-imports > ignoreCase의 값은 항상 default값(false)으로 놔둘 것. true로 했을 때 가끔 다른 import 정렬 관련 rule과 충돌 발생
+     * sort-imports > ignoreDeclarationSort는 항상 true로 할 것. false로 하면 import 정렬 관련 경고 발생 시 해결 불가
+     * sort-imports > ignoreMemberSort는 항상 true로 할 것. false로 하면 typescript에서 type-only import를 inline으로 정의할 때 정렬 에러 발생
      */
-    'array-bracket-spacing': 'warn',
-    camelcase: ['error', { properties: 'never' }],
-    'comma-dangle': ['warn', 'always-multiline'],
-    'computed-property-spacing': ['warn', 'never', { enforceForClassMembers: false }],
+    camelcase: [
+      'error',
+      {
+        properties: 'never',
+      },
+    ],
     eqeqeq: 'error',
-    'generator-star-spacing': ['warn', 'after'],
     'new-cap': 'error',
     'no-array-constructor': 'error',
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'no-console': [
+      'warn',
+      {
+        allow: ['warn', 'error'],
+      },
+    ],
     'no-debugger': process.env.NODE_ENV === 'development' ? 'warn' : 'error',
     'no-duplicate-imports': 'error',
     'no-inner-declarations': 'warn',
@@ -95,23 +97,31 @@ module.exports = {
     'no-new-object': 'warn',
     'no-undef': 'error',
     'no-underscore-dangle': 'error',
-    'no-unused-vars': ['error', { args: 'after-used' }],
+    'no-unused-vars': [
+      'error',
+      {
+        args: 'after-used',
+      },
+    ],
     'no-useless-escape': 'warn',
     'no-var': 'error',
-    'object-curly-spacing': ['warn', 'always'],
     'prefer-const': 'error',
     'prefer-rest-params': 'error',
-    quotes: ['warn', 'single', { allowTemplateLiterals: true }],
-    semi: ['error', 'never'],
+    quotes: [
+      'warn',
+      'single',
+      {
+        allowTemplateLiterals: true,
+      },
+    ],
     'sort-imports': [
       'warn',
       {
         allowSeparatedGroups: true,
-        ignoreCase: true,
         ignoreDeclarationSort: true,
+        ignoreMemberSort: true,
       },
     ],
-    'space-before-function-paren': ['warn', { anonymous: 'always', named: 'never', asyncArrow: 'always' }],
     /**
      * Typescript-eslint supported rules
      * {@link https://typescript-eslint.io/rules/}
@@ -138,7 +148,12 @@ module.exports = {
         'ts-check': 'allow-with-description',
       },
     ],
-    '@typescript-eslint/no-explicit-any': ['error', { ignoreRestArgs: true }],
+    '@typescript-eslint/no-explicit-any': [
+      'error',
+      {
+        ignoreRestArgs: true,
+      },
+    ],
     '@typescript-eslint/no-floating-promises': 'warn',
     '@typescript-eslint/no-unsafe-argument': 'error',
     '@typescript-eslint/no-unsafe-assignment': 'error',
@@ -150,7 +165,11 @@ module.exports = {
     '@typescript-eslint/restrict-template-expressions': 'warn',
     '@typescript-eslint/space-before-function-paren': [
       'warn',
-      { anonymous: 'always', named: 'never', asyncArrow: 'always' },
+      {
+        anonymous: 'always',
+        named: 'never',
+        asyncArrow: 'always',
+      },
     ],
     /**
      * Eslint-config-prettier options
@@ -171,12 +190,22 @@ module.exports = {
      * order : import 자동 정렬. warnOnUnassignedImports는 항상 default값(false)로 놔둘 것. true로 할 경우 import 정렬 관련 경고가 발생하는데, 이 문제는 import/order 또는 sort-import 설정만으로는 해결 불가
      */
     'import/newline-after-import': 'warn',
-    'import/no-anonymous-default-export': ['warn', { allowArray: true, allowObject: true }],
+    'import/no-anonymous-default-export': [
+      'warn',
+      {
+        allowArray: true,
+        allowObject: true,
+      },
+    ],
     'import/no-unresolved': 'off',
     'import/order': [
       'warn',
       {
-        alphabetize: { caseInsensitive: true, order: 'asc', orderImportKind: 'asc' },
+        alphabetize: {
+          caseInsensitive: true,
+          order: 'asc',
+          orderImportKind: 'asc',
+        },
         'newlines-between': 'always',
       },
     ],
@@ -240,9 +269,20 @@ module.exports = {
     'react/jsx-curly-brace-presence': 'warn',
     // 'react/jsx-curly-spacing': ['warn', { when: 'always', children: true, objectLiterals: 'never' }], // prettier와 충돌하여 사용할 수 없음
     'react/jsx-key': 'error',
-    'react/jsx-no-useless-fragment': ['warn', { allowExpressions: true }],
+    'react/jsx-no-useless-fragment': [
+      'warn',
+      {
+        allowExpressions: true,
+      },
+    ],
     'react/jsx-pascal-case': 'warn',
-    'react/jsx-no-bind': ['error', { allowArrowFunctions: true, allowFunctions: true }],
+    'react/jsx-no-bind': [
+      'error',
+      {
+        allowArrowFunctions: true,
+        allowFunctions: true,
+      },
+    ],
     'react/jsx-uses-react': 'off',
     'react/jsx-uses-vars': 'error',
     'react/no-direct-mutation-state': 'error',
@@ -250,7 +290,13 @@ module.exports = {
     'react/no-unused-state': 'warn',
     'react/prop-types': 'off',
     'react/react-in-jsx-scope': 'off',
-    'react/self-closing-comp': ['warn', { component: true, html: false }],
+    'react/self-closing-comp': [
+      'warn',
+      {
+        component: true,
+        html: false,
+      },
+    ],
     'react/static-property-placement': 'warn',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': [
@@ -279,6 +325,8 @@ module.exports = {
      *
      * 'detect' automatically picks the version you have installed.
      */
-    react: { version: 'detect' },
+    react: {
+      version: 'detect',
+    },
   },
 }
