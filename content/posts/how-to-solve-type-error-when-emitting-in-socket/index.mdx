@@ -1,0 +1,105 @@
+---
+title: Socket.io 에서 emitting 이벤트 작성 시 발생하는 타입 에러 해결하기
+date: 2023-12-13
+description: 너무 쉽게 해결할 수 있어서 글로 쓰기에도 민망할 정도라니까요.
+tags:
+  - socket
+  - typescript
+  - error
+---
+
+Socket.io와 타입스크립트를 사용하여 웹소켓 기능을 구현할 때 eimtting 이벤트를 작성하면 타입 에러가 발생해요.
+
+Socket.io 공식 사이트에서 제공하는 튜토리얼 코드를 보면서 이야기할게요.
+
+<br />
+
+```typescript
+// 타입 정의
+
+export interface ServerToClientEvents {
+  ...
+}
+
+export interface ClientToServerEvents {
+  hello: () => void
+}
+
+export interface InterServerEvents {
+  ...
+}
+
+export interface SocketData {
+  ...
+}
+```
+
+<br />
+
+```typescript
+// 프론트엔드 코드
+
+const socket = io()
+
+const form = document.getElementById('form')
+const input = document.getElementById('input')
+
+form.addEventListener('submit', e => {
+  e.preventDefault()
+
+  if (input.value) {
+    socket.emit('chat message', input.value)
+    input.value = ''
+  }
+})
+```
+
+<br />
+
+```typescript
+// 백엔드 코드
+
+const app = express()
+const server = createServer(app)
+
+const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(server)
+
+io.on('connection', socket => {
+  // 에러 발생
+  // Argument of type '"chat message"' is not assignable to parameter of type 'ReservedOrUserEventNames<SocketReservedEventsMap, ClientToServerEvents>'.
+  socket.on('chat message', msg => {
+    console.log('message:', msg)
+  })
+})
+```
+
+<br />
+
+위에서 보는 것처럼 프론트엔드에서 발생시킨 'chat message'라는 이벤트를 백엔드에서 이벤트를 받는 부분에서 타입스크립트 관련 에러가 발생했어요.
+
+이 에러는 `ClientToServerEvents` 인터페이스에 해당 이벤트가 정의되어 있지 않기 때문에 발생하고 있어요. 따라서 'chat message' 이벤트를 추가해주면 에러가 사라져요.
+
+<br />
+
+```typescript
+// 타입 정의
+
+export interface ClientToServerEvents {
+  hello: () => void
+  'chat message': (msg: string) => void
+}
+```
+
+<br />
+
+이 방법이 번거롭다면 아래처럼 뭐든 허용되는 프로퍼티를 만들면 되겠죠?😅
+
+<br />
+
+```typescript
+// 타입 정의
+
+export interface ClientToServerEvents {
+  [key: string]: (prop: any) => void
+}
+```
