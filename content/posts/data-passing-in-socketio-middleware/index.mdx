@@ -1,0 +1,78 @@
+---
+title: Socket.io 미들웨어에서 데이터 전달하기
+date: 2023-12-21
+description: 처음 하는 사람은 헷갈릴 수 있어요.
+tags:
+  - socket.io
+  - middleware
+  - typescript
+---
+
+서버에서 Socket.io 미들웨어를 설정하던 중에 발생한 문제를 해결하지 못해 상당히 오랜 시간을 헤멘 적이 있어요.
+
+`use()`메서드 내에서 프로퍼티로 전달 받는 `socket`에 데이터를 전달하는 과정에서 타입 관련 에러를 만났는데 이게 해결이 안 되는 거예요.
+
+<br />
+
+```typescript
+import { Server } from 'socket.io'
+
+import type { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from './types/socket'
+
+const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>()
+
+io.use((socket, next) => {
+  const userName = socket.handshake.auth.userName as string
+
+  if (!userName) { ... }
+
+  // Error: Property 'userName' does not exist on type 'Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>'.
+  socket.userName = userName
+  next()
+})
+```
+
+<br />
+
+처음에는 타입 선언에 문제가 있는 줄 알고 이렇게 저렇게 `socket`의 타입을 변경해 봤지만 소용없었어요.
+
+나중에서야 `socket`의 타입인 `Socket`의 타입 정의를 확인하고 나서 `socket`이 클래스라는 점을 알게 됐어요.
+
+더 알아보니 `socket.data`에 데이터를 전달하면 되겠더라고요.
+
+다음과 같이 `socket.userName`을 `socket.data.userName`으로 바꿨더니 에러가 사라졌어요.
+
+<br />
+
+```typescript
+io.use((socket, next) => {
+  const userName = socket.handshake.auth.userName as string
+
+  if (!userName) { ... }
+
+  // 에러가 뜨지 않아요.
+  socket.data.userName = userName
+  next()
+})
+```
+
+<br />
+
+물론 `SocketData` interface에 userName 프로퍼티를 추가해줘야 했어요.
+
+`socket.data`의 타입이 `SocketData`였거든요.
+
+```typescript
+interface SocketData {
+  ...
+
+  // userName 프로퍼티 추가
+  userName?: string
+}
+```
+
+<br />
+
+## 참고 자료
+
+[Correct way of passing data from socket.io middleware to event](https://stackoverflow.com/a/68114612)
