@@ -1,0 +1,72 @@
+---
+title: Can't find Node.js binary node ... 에러 해결 방법
+date: 2024-01-18
+description: VS CODE에서 디버깅 할 때 발생하는 에러를 해결해보아요.
+tags:
+  - error
+  - vscode
+  - debug
+---
+
+> 이 글은 `JavaScript Debugger` 또는 `JavaScript Debugger (Nightly)` 확장 프로그램을 사용하는 경우를 전제로 작성했어요.
+
+## 사건의 발단
+
+vs code에서 디버거를 실행했는데 다음과 같은 에러가 발생했어요.
+
+<br />
+
+![에러 메시지](error.png)
+
+<br />
+
+다음은 이 에러가 발생했을 당시 제 vs code에 설정된 launch.json이에요.
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Current File",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${file}"
+    }
+  ]
+}
+```
+
+<br />
+
+## 사건 해결
+
+이 에러는 vs code 디버거가 현재 컴퓨터에 설치된 node의 위치를 찾지 못해서 발생했어요. 그러니 디버거에 node가 설치된 경로만 알려주면 돼요.
+
+그런데 node가 설치되는 경로는 뻔할 텐데 왜 못 찾을까 궁금해서 검색해 보니 nvm이나 n처럼 node 버전 관리 도구를 사용할 경우에 발생할 수 있는 문제인 듯하더라고요. 기술적인 문제는 아닌 듯해서 다행이에요.🙌🏻
+
+다음 순서대로 따라해보세요.
+
+1. 터미널에서 `which node`를 실행해요.
+2. 출력된 주소를 복사해요.
+3. launch.json에 `runtimeExecutable` 옵션을 추가하고, 2번에서 복사한 주소를 값으로 할당해요.
+
+저는 `which node`를 실행하니 `/opt/homebrew/bin/node`가 출력됐어요. 이 주소를 사용해서 launch.json을 다음과 같이 수정했어요.
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Current File",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${file}",
+      "runtimeExecutable": "/opt/homebrew/bin/node"
+    }
+  ]
+}
+```
+
+이제 디버깅을 해보면 문제 없이 될 거예요.🎉🎉
