@@ -1,0 +1,59 @@
+---
+title: 한 자리 숫자만으로 반복문 만들기
+date: 2024-03-12
+description: for문 외에 다른 방식으로도 한 자리 숫자만 가지고 반복문을 만들 수 있어요.
+tags:
+  - javascript
+  - array
+---
+
+숫자 4 하나만으로 길이가 4인 배열을 만들고 싶다면 어떻게 해야 할까요? 아마 가장 먼저 떠오르는 방법은 for문을 사용하는 것일 텐데요.
+
+<br />
+
+```javascript
+const num = 4
+const arr = []
+
+for (let i = 0; i < num; i++) {
+  arr.push(i)
+}
+
+console.log(arr) // [0, 1, 2, 3]
+```
+
+<br />
+
+만일 for문을 사용하기 싫다면 어떻게 해야 할까요?
+
+이럴 땐 `Array.from()`을 사용해서 만들어 보세요.
+
+<br />
+
+```javascript
+const num = 4
+const arr = Array.from({ length: num }, (v, i) => i)
+
+console.log(arr) // [0, 1, 2, 3]
+```
+
+<br />
+
+반복문 안에서 연산을 한 후에 값을 반환해야 한다면 다음과 같이 할 수도 있겠죠.
+
+<br />
+
+```javascript
+const num = 4
+const arr = Array.from({ length: num }, (v, i) => `기호 ${i + 1}번`)
+
+console.log(arr) // ['기호 1번', '기호 2번', '기호 3번', '기호 4번']
+```
+
+참고로 매개변수 `v`는 `undefined` 값을 가지고 있으니 신경쓰지 않아도 괜찮아요.😇
+
+<br />
+
+## 참고 자료
+
+[Using arrow functions and Array.from\(\)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from#using_arrow_functions_and_array.from)
