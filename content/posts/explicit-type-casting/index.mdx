@@ -1,0 +1,104 @@
+---
+title: 객체 프로퍼티의 값을 사용할 때 타입을 명확히 지정해야 하는 경우가 생긴다
+date: 2024-03-16
+description: 자주 발생하는 일은 아니지만 어쨌든 생겨요.
+tags:
+  - typescript
+---
+
+## 사건의 발단
+
+다음 코드에서 `string` 타입인 값을 변수에 할당했는데도 `string`이 아닌 다른 타입이 할당되는 경우가 발생했어요.😭
+
+<br />
+
+```typescript
+const user = {
+  username: 'John',
+  isAdmin: false,
+  createdAt: new Date(),
+}
+
+for (const key in user) {
+  const newKey = key as keyof typeof user
+  const isString = typeof user[newKey] === 'string'
+
+  // 타입스크립트는 value의 타입을 string | boolean | Date 로 추론해요
+  const value = isString ? user[newKey] : user[newKey].toString()
+  console.log(typeof value) // string
+}
+```
+
+<br />
+
+위 코드에서 `value` 변수의 타입은 분명히 `string`이에요.
+
+`user[newKey]`의 타입이 `string`이라면 `user[newKey]`를 그대로 `value`에 할당하고, `boolean`이나 `Date`라면 `toString`으로 타입을 변환한 다음 할당하기 때문이에요.
+
+실제로 `console.log`를 사용해 `value`의 타입을 확인해 보면 모두 `string` 타입으로 나와요.
+
+<br />
+
+## 원인 규명
+
+그런데 말입니다.
+
+타입스크립트는 `value`의 타입을 `string | boolean | Date`로 추론해요.
+
+왜 그럴까요?🤷🏻‍♀️
+
+이 문제는 사람이 논리적으로 사고하는 방식과 타입스크립트가 타입을 추론하는 방식이 다르기 때문에 발생해요.
+
+사람은 아래 코드에서 `user[newKey]`가 `string`임을 파악할 수 있어요.
+
+<br />
+
+```typescript
+const isString = typeof user[newKey] === 'string'
+const value = isString ? user[newKey] : user[newKey].toString()
+```
+
+<br />
+
+`user[newKey]`의 타입이 `string`임을 `isString`으로 확인했기 때문에 `value`에 할당하는 `user[newKey]`의 타입을 굳이 `string`으로 변환할 필요가 없으니까요.
+
+그렇지만 위 코드에서 `newKey`의 타입을 `keyof typeof user` 으로 assertion 했기 때문에 타입스크립트는 사람과 달리 `user[newKey]`를 무조건 `string | boolean | Date`로 추론해요.
+
+`isString`이 `true`라면 `user[newKey]`를 그대로 `value`에 할당하니, 타입스크립트로서는 그렇게 판단할 수밖에 없죠.
+
+그러니 이 문제를 해결하려면 `isString`이 `true`일 때 `value`에 할당하는 `user[newKey]`의 타입을 수동으로 지정해야 해요.
+
+<br />
+
+## 사건 해결
+
+아래 코드와 같이 `user[newKey]`의 타입을 `string`으로 assertion 하니 문제가 해결됐어요!!
+
+<br />
+
+```typescript
+// 이제 타입스크립트도 value의 타입을 string으로 추론해요
+const value = isString ? (user[newKey] as string) : user[newKey].toString()
+console.log(typeof value) // string
+```
+
+<br />
+
+다음은 수정을 마친 전체 코드예요.
+
+<br />
+
+```typescript
+const user = {
+  username: 'John',
+  isAdmin: false,
+  createdAt: new Date(),
+}
+
+for (const key in user) {
+  const newKey = key as keyof typeof user
+  const isString = typeof user[newKey] === 'string'
+  const value = isString ? (user[newKey] as string) : user[newKey].toString()
+  console.log(typeof value)
+}
+```
