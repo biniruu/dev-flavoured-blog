@@ -1,0 +1,44 @@
+---
+title: jest로 CSS module 테스트하기
+date: 2024-04-13
+description: 패키지 설치만 하면 끝!
+tags:
+  - test
+  - unit test
+  - jest
+---
+
+PostCSS를 사용해서 작성한 CSS 모듈 파일을 import한 컴포넌트를 jest로 테스트하면 syntax error가 발생해요.
+
+<br />
+
+```javascript
+// 이 import 때문에 에러가 발생한다
+import styles from './pagination.module.css'
+
+export function Comp() {
+  return (...)
+}
+```
+
+<br />
+
+이 문제를 해결하려면 **identity-obj-proxy**를 설치한 후에 jest 설정에 해당 모듈을 추가해주기만 하면 돼요.
+
+<br />
+
+```bash
+yarn add -D identity-obj-proxy
+```
+
+```javascript
+// jest.config.js
+
+moduleNameMapper: {
+  '\\.(css|scss)$': 'identity-obj-proxy',
+},
+```
+
+<br />
+
+참 쉽죠?
