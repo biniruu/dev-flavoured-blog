@@ -1,0 +1,210 @@
+---
+title: jest에서 lodash-es mocking 하기
+date: 2024-04-14
+description: 어렵지 않아요.
+tags:
+  - jest
+  - react
+  - mock
+  - lodash
+---
+
+> 이 방법은 lodash-es method를 사용하는 파일을 테스트할 때 발생하는 에러를 확실히 해결해줘요. 그렇지만 정확한 또는 추천할 만한 방법인지는 확실하지 않아요.
+
+<br />
+
+리액트에서 `debounce`를 사용한 컴포넌트를 jest로 테스트하다 문제가 발생했어요.
+
+이 문제를 다룬 글을 찾기가 어려워서 해결하는 데 시간이 꽤 많이 들더라고요.
+
+저와 같은 상황을 마주쳤다면 이 글이 도움이 될 거라 생각해요.
+
+<br />
+
+## 에러 발생
+
+<br />
+
+```typescript
+// Searchbar.tsx
+
+import { debounce } from 'lodash-es'
+import type { ChangeEvent } from 'react'
+
+import useNavFunc from 'hooks/useNavFunc'
+
+export function Searchbar() {
+  const { searchParams, replace, pathname } = useNavFunc()
+
+  const handleSearch = debounce((e: ChangeEvent<HTMLInputElement>) => {
+    const params = new URLSearchParams(searchParams)
+    params.set('page', '1')
+    e.target.value ? params.set('search', e.target.value) : params.delete('search')
+    replace(`${pathname}?${params.toString()}`) // path를 test?page=1&search=[params] 로 변경
+  })
+
+  return (...)
+}
+```
+
+```typescript
+// Searchbar.test.tsx
+
+import { fireEvent, render, screen } from '@testing-library/react'
+import type { LoDashStatic } from 'lodash'
+import type { ChangeEvent } from 'react'
+
+import Searchbar from '@components/searchbar/Searchbar'
+
+const replace = jest.fn()
+
+jest.mock('hooks/useNavFunc', () => ({
+  __esModule: true,
+  default: () => ({
+    searchParams: '',
+    replace,
+    pathname: 'test',
+  }),
+}))
+
+// lodash-es를 mocking하는 부분
+jest.mock('lodash-es', () => {
+  return {
+    debounce: jest.fn()
+  }
+})
+
+describe('Searchbar component', () => {
+  test('should update input value and URL when user types in search input', () => {
+    render(<Searchbar />)
+    const input = screen.getByTestId(...)
+    fireEvent.change(input, { target: { value: 'hello' } })
+
+    expect(replace).toHaveBeenCalledWith('test?page=1&search=hello')
+  })
+})
+```
+
+> Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+>
+> Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+>
+> By default "node_modules" folder is ignored by transformers.
+>
+> Here's what you can do:
+> ...
+>
+> Details:
+>
+> /Users/biniruu/WebDev/admin-dashboard-nextjs14/node_modules/lodash-es/lodash.js:10  
+> export \{ default as add \} from './add.js';  
+> ^^^^^^
+>
+> SyntaxError: Unexpected token 'export'
+>
+> ...
+
+<br />
+
+에러를 해결하려고 테스트 코드에 별별 방법을 써봐도 효과가 없을 거예요.
+
+대신 jest 설정 파일에서 `moduleNameMapper` 옵션에 `'lodash-es': 'lodash'`를 추가해보세요.
+
+에러가 사라질 거예요.
+
+<br />
+
+```typescript
+// jest.config.ts
+
+moduleNameMapper: {
+  'lodash-es': 'lodash'
+}
+```
+
+<br />
+
+## mocking 한 debounce로 감싼 함수가 실행되지 않는 문제
+
+컴포넌트 파일에서 `replace`가 실행되는지 테스트하고 싶었는데, `debounce`를 잘못된 방식으로 mocking 했더니 `replace`가 실행되지 않는 문제가 발생했어요.
+
+테스트 코드에서 `lodash-es`를 mocking한 부분을 살펴보세요.
+
+컴포넌트 파일에서 `debounce`로 감싼 함수 부분을 테스트 파일에서 mocking한 `debounce`가 반영하지 못하고 있어요.
+
+컴포넌트 파일에서는 `debounce`가 감싼 함수에서 `replace`를 실행하는데, 그 함수 부분을 테스트 코드에서 반영하지 못하고 있으니 `toHaveBeenCalledWith`에서 테스트가 실패할 수밖에 없죠.
+
+<br />
+
+> expect(jest.fn()).toHaveBeenCalledWith(...expected)
+>
+> Expected: "test?page=1&search=hello"
+>
+> Number of calls: 0
+
+<br />
+
+문제가 되는 `lodash-es` mocking 부분을 다음과 같이 바꿨더니 의도한 대로 테스트가 동작했어요.
+
+<br />
+
+```typescript
+import type { LoDashStatic } from 'lodash'
+
+jest.mock('lodash-es', () => {
+  const originalModule: LoDashStatic = jest.requireActual('lodash-es')
+
+  return {
+    ...originalModule,
+    debounce: (fn: ChangeEvent<HTMLInputElement>) => fn,
+  }
+})
+```
+
+<br />
+
+## 마무리
+
+이제 전체 테스트 코드를 확인하면서 참고할 만한 부분을 찾아 수정해보세요.
+
+<br />
+
+```typescript
+// Searchbar.test.tsx
+
+import { fireEvent, render, screen } from '@testing-library/react'
+import type { LoDashStatic } from 'lodash'
+import type { ChangeEvent } from 'react'
+
+import Searchbar from '@components/searchbar/Searchbar'
+
+const replace = jest.fn()
+
+jest.mock('hooks/useNavFunc', () => ({
+  __esModule: true,
+  default: () => ({
+    searchParams: '',
+    replace,
+    pathname: 'test',
+  }),
+}))
+
+jest.mock('lodash-es', () => {
+  const originalModule: LoDashStatic = jest.requireActual('lodash-es')
+
+  return {
+    ...originalModule,
+    debounce: (fn: ChangeEvent<HTMLInputElement>) => fn,
+  }
+})
+
+describe('Searchbar component', () => {
+  test('should update input value and URL when user types in search input', () => {
+    render(<Searchbar />)
+    const input = screen.getByTestId(...)
+    fireEvent.change(input, { target: { value: 'hello' } })
+
+    expect(replace).toHaveBeenCalledWith('test?page=1&search=hello')
+  })
+})
+```
