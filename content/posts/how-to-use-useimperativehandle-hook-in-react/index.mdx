@@ -1,0 +1,147 @@
+---
+title: useImperativeHandle hook 사용하기
+date: 2024-05-26
+description: 조금은 생소할 수 있는 useImperativeHandle hook을 사용하는 방법이에요.
+tags:
+  - react
+  - hook
+---
+
+## useImperativeHandle 소개
+
+리액트를 사용하는 개발자라면 상위 컴포넌트에서 하위 컴포넌트의 요소나 데이터 등을 직접 제어하지 못한다는 점을 잘 알 거예요.
+
+함수를 `prop`으로 하위 컴포넌트에 전달하여 해당 함수를 통해 제어하는 방법이 있긴 하지만, 꽤 번거롭기도 하거니와 원하는 방식을 100% 구현하기도 어렵다는 단점이 있죠.
+
+하지만 방법이 아예 없는 건 아니에요. `useImperativeHandle` 훅을 사용하면 상위 컴포넌트에서 하위 컴포넌트를 직접 다룰 수 있으니까요.
+
+## useImperativeHandle 사용 방법
+
+`useImperativeHandle`를 사용하기 위해서는 `forwardRef`가 무엇인지 알아야 하는데, 여기서는 설명하지 않을게요. 만일 `forwardRef`를 모른다면 우선 `forwardRef`의 사용법을 확인하고 오시는 것을 추천해요.
+
+`useImperativeHandle`는 `forwardRef`와 함께 하위 컴포넌트에서 사용하는 훅이에요. `useImperativeHandle`는 세 개의 속성을 받아서 사용해요.
+
+<br />
+
+```
+useImperativeHandle(ref, createHandle, dependencies?)
+```
+
+<br />
+
+첫 번째 속성에는 `forwardRef`를 통해 상위 컴포넌트에서 받아 온 `ref`를 할당해요.
+
+두 번째 속성에는 상위 컴포넌트에서 받아 온 `ref`에 할당할 데이터를 반환하는 함수를 할당해요. 반환하는 데이터는 꼭 메서드가 아니어도 괜찮아요. 참고로 여기서 '`ref`에 할당한다'라는 표현은 `useImperativeHandle` 사용법의 이해를 좀 더 쉽게 만들기 위한 것일 뿐, 정확한 표현이라고 볼 수는 없어요. 리액트 공식 문서에서는 handle을 `ref`에 나타내는 것이라고 표현하고 있거든요.
+
+세 번째 속성에는 다른 리액트 훅과 마찬가지로 의존성 데이터 배열을 할당해요. 다만, 다른 훅과는 달리 `useImperativeHandle`을 사용할 때는 이 속성을 할당하지 않는 경우가 많은 듯해요. 물론 사용 방식에 따라 다르겠지만요.
+
+아래 코드는 `useImperativeHandle`를 사용한 예시 코드예요. `Select.tsx`가 상위 컴포넌트, `DropdownList.tsx`가 하위 컴포넌트고요.
+
+이 코드와 함께 `useImperativeHandle`의 사용법을 알아볼게요.
+
+```typescript
+// Select.tsx
+
+import { useRef } from 'react'
+import DropdownList from './DropdownList'
+
+interface DropdownListRefs {
+  get: (idx: number) => HTMLLIElement
+  setDropdownPosition: () => void
+}
+
+function Select() {
+  const dropdownListRefs = useRef<DropdownListRefs>(null)
+
+  // useImperativeHandle 훅으로 받아 온 메서드를 호출하는 예시
+  const optionItem = dropdownListRefs.current?.get(2)
+  optionItem?.classList.add('focus')
+  dropdownListRefs.current?.setDropdownPosition()
+
+  return (
+    <div>
+      <DropdownList ref={dropdownListRefs} />
+    </div>
+  )
+}
+
+export default Select
+```
+
+<br />
+
+```typescript
+// DropdownList.tsx
+import { forwardRef, useImperativeHandle, useRef } from 'react'
+
+const DropdownList = forwardRef(function DropdownList() {
+  const optionRefs = useRef<Map<number, HTMLLIElement>>(new Map())
+  const dropdownRefs = useRef<HTMLDivElement>(null)
+
+  useImperativeHandle(ref, () => ({
+    get: (idx: number) => optionRefs.current.get(idx),
+    setDropdownPosition: () => {
+      if (dropdownRefs.current) {
+        // DropdownList 길이가 화면의 하단을 넘어가서 잘려 보이게 될 경우 DropdownList를 위쪽으로 보이게 하는 로직.
+        // 코드 자체에 오류가 있을 수 있지만 이 글에서 설명하려는 맥락과는 관계없기에 자세히 살펴보지 않았어요. 물론 여러분도 살펴볼 필요가 없어요.
+        const rect = dropdownRefs.current.getBoundingClientRect()
+        const isReverse = rect.bottom > window.innerHeight
+        isReverse ? (dropdownRefs.current.style.bottom = '0') : (dropdownRefs.current.style.top = '3.2rem')
+      }
+    },
+  }))
+
+  return (
+    <div ref={dropdownRefs}>
+      <ul>
+        {data.map((item, idx) => {
+          const { value, label } = item
+
+          return (
+            <li
+              key={value}
+              // put in all li tags that are created by a map method to ref
+              ref={node => {
+                node ? optionRefs.current.set(idx, node) : optionRefs.current.delete(idx)
+              }}
+            >
+              {label}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+})
+
+export default DropdownList
+```
+
+<br />
+
+여기서는 `get`을 통해 상위 컴포넌트에서 `optionRefs`에 할당된 복수의 `li` 요소 중 하나를 선택해 사용하고 있어요. `dropdownListRefs.current?.get(2)`를 호출하면 `dropdownListRefs`에서 가지고 있는 여러 개의 `li` 요소 중 세 번째 요소를 `optionItem` 변수에 할당하죠.
+
+이렇게 상위 컴포넌트에서 받아 온 `li` 요소의 속성을 바꿀 수도 있어요. 여기서는 `li` 요소에 포커스를 주었어요.
+
+```typescript
+const optionItem = dropdownListRefs.current?.get(2)
+optionItem?.classList.add('focus')
+```
+
+꼭 하위 컴포넌트의 데이터를 상위 컴포넌트로 끌어오는 방식으로만 사용하지 않아도 돼요. 하위 컴포넌트의 특정 요소를 상위 컴포넌트에서 직접 제어하는 방식으로 사용할 수도 있어요.
+
+`setDropdownPosition`은 하위 컴포넌트에 있는 `dropdownRefs` 요소의 `style` 속성을 상위 컴포넌트에서 변경하고 있어요.
+
+```typescript
+dropdownListRefs.current?.setDropdownPosition()
+```
+
+이와 같이 `useImperativeHandle`를 사용하면 하위 컴포넌트를 상위 컴포넌트에서 원하는 방식으로 제어할 수 있지만, 그만큼 로직의 흐름을 알아보기 어려워질 수 있어요.
+
+<br />
+
+## 참고 자료
+
+- [useImperativeHandle](https://react.dev/reference/react/useImperativeHandle)
+- [useImperativeHandle 떠먹여드립니다.](https://velog.io/@jay/useImperativeHandle-떠먹여드립니다)
+- [[React] useImperativeHandle hook으로 하위 컴포넌트의 상태 관리하기](https://velog.io/@young_mason/useImperativeHandle)
