@@ -1,0 +1,256 @@
+---
+title: 새로운 eslint 설정 시스템에 맞춰 설정 파일 만들기
+date: 2024-05-27
+description: eslint 버전 9부터 새로 도입한 flat config를 설정하는 방법에 대해 알아보세요.
+tags:
+  - eslint
+---
+
+> ⚠️이 문서는 계속 업데이트 될 예정이에요. flat config를 지원하지 않는 eslint-plugin-import 같은 패키지가 있기 때문에 저도 아직 이 설정을 완전하게 만들어서 사용해 본 적이 없거든요.
+
+<br />
+
+eslint는 9 버전부터 이전 설정 방식인 '.eslintrc.js', '.eslintrc.json'를 사용할 수 없게 되었어요. 오직 'flat config'라고 불리는 'eslint.config.js'만 사용할 수 있게 되었죠.
+
+이러한 변경과 함께 '.eslintignore' 파일도 사용할 수 없게 됐어요. 이제는 'eslint.config.js' 안에서 `ignores` 옵션으로만 사용할 수 있어요.
+
+그러면 새로운 설정 파일은 어떻게 구성해야 하는지 알아볼까요.
+
+<br />
+
+## 새로운 설정파일 구성 방법
+
+가장 눈에 띄는 변경사항이라고 한다면, flat config에서는 의존성 패키지를 일일이 `import`해야 한다는 점이에요.
+
+이외에도 제가 실제로 flat config를 설정해보면서 확인한 점을 정리했어요.
+
+<br />
+
+### 파일명
+
+앞서 설명한 바와 같이 파일명은 (일반적으로) 'eslint.config.js'로만 쓸 수 있어요. '.eslintrc.js'나 '.eslintrc.json'는 사용할 수 없어요.
+
+<br />
+
+### export 데이터 타입
+
+eslint 설정 파일이 `export` 하는 타입이 객체에서 배열로 바뀌었어요.
+
+```javascript
+// .eslintrc.js
+
+export default {
+  ...
+}
+```
+
+<br />
+
+```javascript
+// eslint.config.js
+
+export default [
+  ...
+]
+```
+
+<br />
+
+### eslint 추천 설정
+
+eslint 추천 설정을 사용하기 위해 '\@eslint/js' 패키지를 설치해야 해요.
+
+```javascript
+import eslint from '@eslint/js'
+
+export default [
+  eslint.configs.recommended,
+  {
+    rules: {
+      ...
+    }
+  }
+]
+```
+
+<br />
+
+### typescript-eslint 패키지 변경
+
+기존에 사용하던 '\@typescript-eslint/eslint-plugin'와 '\@typescript-eslint/parser' 대신 'typescript-eslint'를 사용해야 해요.
+
+'typescript-eslint'의 `config`를 export하도록 수정할 필요도 있고요.
+
+```javascript
+import tslint from 'typescript-eslint'
+
+export default tslint.config(
+  // tslint.configs.recommended의 타입이 배열이기 때문에 전개 구문 사용
+  ...tslint.configs.recommended,
+)
+```
+
+<br />
+
+### overrides 사용 방식 변경
+
+특정 설정을 기존 설정에 덮어쓰기 위해 사용하는 `overrides` 옵션을 사용하는 방식이 '설정 배열'의 객체 아이템으로 사용하는 방식으로 변경되었어요.
+
+```javascript
+// .eslintrc.js
+
+export default {
+  overrides: [
+    {
+      extends: ['plugin:jest/recommended', 'plugin:jest-dom/recommended'],
+      files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+      rules: {
+        ...
+      },
+    },
+  ],
+}
+```
+
+<br />
+
+```javascript
+// eslint.config.js
+
+import eslintPluginJest from 'eslint-plugin-jest'
+
+export default [
+  {
+    files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+    ...eslintPluginJest.configs['flat/recommended'], // extends 옵션을 이렇게 전개 구문으로 설정할 수도 있어요
+    rules: {
+      ...eslintPluginJest.rules,
+    },
+  },
+]
+```
+
+<br />
+
+### languageOptions 옵션으로 대체되는 옵션들
+
+`env`, `globals`, `parser` 옵션 등이 `languageOptions` 옵션의 하위 옵션으로 들어가요. 특히 `env`는 `globals` 옵션에 포함되고, `env` 옵션 자체는 사라져요.
+
+```javascript
+// .eslintrc.js
+
+export default {
+  env: {
+    browser: true,
+    es6: true,
+    node: true,
+    'jest/globals': true,
+  },
+  globals: {
+    myCustomGlobal: 'readonly',
+  },
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: true,
+    tsconfigRootDir: __dirname,
+  },
+}
+```
+
+<br />
+
+```javascript
+// eslint.config.js
+
+import path from 'path'
+import globals from 'globals'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+export default tslint.config({
+  languageOptions: {
+    globals: {
+      ...globals.node,
+      ...globals.browser,
+      ...globals.es5,
+      ...globals.jest,
+      myCustomGlobal: 'readonly',
+    },
+    parser: tslint.parser,
+    parserOptions: {
+      project: true,
+      tsconfigRootDir: __dirname,
+    },
+  },
+})
+```
+
+<br />
+
+### ignore 파일 추가
+
+위에서 언급한 대로 `.eslintignore` 파일은 더 이상 사용할 수 없어요. 대신 `ignores` 옵션만 사용할 수 있어요.
+
+```javascript
+export default [
+  {
+    ignores: ['tsconfig.json', 'node_modules', 'dist'],
+  },
+]
+```
+
+<br />
+
+## 에러 해결
+
+아무래도 이제 막 시스템이 변경되었다 보니 에러가 발생할 가능성이 높은 편이에요. 이럴 때를 대비에서 eslint 공식 홈페이지에서도 관련 문서를 제공하고 있어요.
+
+[eslint Troubleshooting & FAQs](https://typescript-eslint.io/troubleshooting/)
+
+다음은 제가 직접 겪었던 에러와 해결 방법이에요.
+
+<br />
+
+> 여기서부터는 flat config를 지원하지 않는 eslint-plugin-import를 flat config에 억지로 반영한 결과예요. 실제 이 방식으로 에러를 해결하기는 했지만, eslint-plugin-import는 동작하지 않았어요. 그저 해당 에러가 발생했을 때 이런 방식으로 해결할 수도 있다고만 이해해주세요.
+
+<br />
+
+에러: **TypeError: context.getScope is not a function**
+
+이 에러가 발생했을 때 '\@eslint/compat' 패키지를 설치한 후에, 에러가 발생하는 플러그인을 `fixupPluginRules`의 인자로 넘겨서 설정했어요.
+
+```javascript
+import { fixupPluginRules } from '@eslint/compat'
+import eslintPluginImport from 'eslint-plugin-import'
+
+export default [
+  {
+    plugins: {
+      eslintPluginImport: fixupPluginRules(eslintPluginImport),
+    },
+  },
+]
+```
+
+<br />
+
+## 참고 자료
+
+- [Introducing ESLint Compatibility Utilities](https://eslint.org/blog/2024/05/eslint-compatibility-utilities/)
+- [ESLint's new config system, Part 1: Background](https://eslint.org/blog/2022/08/new-config-system-part-1/)
+- [ESLint's new config system, Part 2: Introduction to flat config](https://eslint.org/blog/2022/08/new-config-system-part-2/)
+- [Configuration Migration Guide](https://eslint.org/docs/latest/use/configure/migration-guide)
+- [Using eslintrc Configs in Flat Config](https://eslint.org/docs/latest/use/configure/migration-guide#using-eslintrc-configs-in-flat-config)
+- [eslint Configuring Language Options](https://eslint.org/docs/latest/use/configure/migration-guide#configuring-language-options)
+- [eslint Troubleshooting & FAQs](https://typescript-eslint.io/troubleshooting/)
+- [typescript-eslint Getting Started](https://typescript-eslint.io/getting-started/)
+- [typescript-eslint configurations](https://typescript-eslint.io/packages/typescript-eslint/)
+- [typescript-eslint Recommended Configurations](https://typescript-eslint.io/packages/typescript-eslint/#usage)
+- [typescript-eslint Ignoring Files](https://eslint.org/docs/latest/use/configure/ignore#ignoring-files)
+- [typescript-eslint Ignoring Files (migration)](https://eslint.org/docs/latest/use/configure/migration-guide#ignoring-files)
+- [\@eslint/compat documentation](https://github.com/eslint/rewrite/tree/main/packages/compat#eslint-compatibility-utilities)
+- [eslintrc documentation](https://github.com/eslint/eslintrc?tab=readme-ov-file#eslintrc-library)
+- [I get errors telling me "ESLint was configured to run ... However, that TSConfig does not / none of those TSConfigs include this file"](https://typescript-eslint.io/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file)
+- [TypeError: context.getScope is not a function](https://eslint.org/docs/latest/use/troubleshooting/v9-rule-api-changes)
