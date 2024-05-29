@@ -107,13 +107,14 @@ const config: GatsbyConfig = {
               query: { allPost: IAllPost; site: { siteMetadata: ISiteMetadata } }
             }) =>
               allPost.nodes.map(post => {
-                const url = site.siteMetadata.siteUrl + post.slug
-                const content = `<p>${post.excerpt}</p><div style="margin-top: 50px; font-style: italic;"><strong><a href="${url}">Keep reading</a>.</strong></div><br /> <br />`
+                const { slug, excerpt, title, date } = post
+                const url = site.siteMetadata.siteUrl + slug
+                const content = `<p>${excerpt}</p><div style="margin-top: 50px; font-style: italic;"><strong><a href="${url}">Keep reading</a>.</strong></div><br /> <br />`
 
                 return {
-                  title: post.title,
-                  date: post.date,
-                  excerpt: post.excerpt,
+                  title,
+                  date,
+                  excerpt,
                   url,
                   guid: url,
                   custom_elements: [{ 'content:encoded': content }],
