@@ -1,0 +1,106 @@
+---
+title: 타입스크립트에서는 this를 사용하지 않아도 멤버 변수에 접근 가능하다
+date: 2024-05-29
+description: parameter properties로서 멤버 변수를 선언하면 this가 꼭 필요하지 않아요.
+tags:
+  - typescript
+  - class
+---
+
+다음 코드를 볼까요. `constructor` 함수의 parameter 안에서 `private` modifier를 사용하여 선언한 멤버 변수에 `this` 없이 접근하고 있어요.
+
+<br />
+
+```typescript
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+  templateElement: HTMLTemplateElement
+  hostElement: T
+  element: U
+
+  constructor(
+    private templateId: string,
+    private hostElementId: string,
+    private insertAtStart: boolean,
+    private newElementId?: string,
+  ) {
+    this.templateElement = document.getElementById(templateId)! as HTMLTemplateElement
+    this.hostElement = document.getElementById(hostElementId)! as T
+
+    const importedNode = document.importNode(this.templateElement.content, true)
+    this.element = importedNode.firstElementChild as U
+    if (newElementId) {
+      this.element.id = newElementId
+    }
+
+    this.attach(insertAtStart)
+  }
+
+  private attach(insertAtBeginning: boolean) {
+    this.hostElement.insertAdjacentElement(insertAtBeginning ? 'afterbegin' : 'beforeend', this.element)
+  }
+
+  abstract configure(): void
+  abstract renderContent(): void
+}
+```
+
+<br />
+
+## 이게 어떻게 가능할까?
+
+이는 타입스크립트만의 특성이며, 자바스크립트에서는 허용되지 않아요. 타입스크립트에서만 멤버 변수를 `constructor`의 parameter에서 `private` , `protect` , `public` , `readonly` 같은 modifier를 사용하여 직접 선언할 수 있거든요.
+
+이를 **parameter properties**라고 해요.
+
+parameter properties를 사용하면 `constructor` 안에서는 parameter property에 `this` 없이 직접 접근할 수 있어요. 이는 `constructor`가 함수와 유사하게 동작하기 때문인 듯해요.
+
+그러나 `contructor` 밖에서 선언한 멤버 변수에 접근할 때는 `this`를 꼭 사용해야 해요. `constructor` 안에서 선언한 멤버 변수라고 해도 `constructor` 밖에서는 `this`를 사용해야 하고요.
+
+<br />
+
+## super는 다르다
+
+아래 `ProjectList` 클래스에서도 마찬가지로 `constructor` 안에서 `private` modifier와 함께 선언한 멤버 변수 `type`을 `super`에서 직접 접근하고 있어요. 그런데 `super`에서 `this`를 사용하지 않는 데는 조금 다른 이유가 있어요.
+
+타입스크립트 공식 문서에서는 `super`에 대해 다음과 같이 설명하고 있어요.
+
+<br />
+
+> Just as in JavaScript, if you have a base class, you'll need to call `super()`; in your constructor body before using any `this.` members
+
+<br />
+
+`constructor` 안에서 `super`는 `this`를 사용하기 전에 호출되어야 해요. `this`를 사용한 후나 `super` 안에서 `this`를 사용하는 방식은 허용되지 않아요.
+
+그렇기 때문에 아래 코드에서도 `super` 안에서 `${this.type}-projects`가 아닌 `${type}-projects`를 썼어요.
+
+<br />
+
+```typescript
+class ProjectList extends Component<HTMLDivElement, HTMLElement> {
+  private assignedProjects: Project[] = []
+
+  constructor(private type: 'active' | 'finished') {
+    super('project-list', 'app', false, `${type}-projects`)
+
+    this.configure()
+    this.renderContent()
+  }
+
+  configure() {
+    ...
+  }
+
+  renderContent() {
+    ...
+  }
+}
+```
+
+<br />
+
+## 참고 자료
+
+- [Constructors](https://www.typescriptlang.org/docs/handbook/2/classes.html#constructors)
+- [Parameter Properties](https://www.typescriptlang.org/docs/handbook/2/classes.html#parameter-properties)
+- [Super Calls](https://www.typescriptlang.org/docs/handbook/2/classes.html#super-calls)
