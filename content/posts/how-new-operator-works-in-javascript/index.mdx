@@ -1,0 +1,70 @@
+---
+title: new 연산자를 사용하면 어떤 일이 일어날까?
+date: 2024-06-10
+description: 자바스크립트는 이렇게 인스턴스를 생성해요.
+tags:
+  - javascript
+  - instance
+---
+
+다음 예시를 볼까요.
+
+<br />
+
+```javascript
+function Fruits() {
+  this.apple = '🍎'
+  this.banana = '🍌'
+}
+
+const fruits = new Fruits()
+```
+
+<br />
+
+위 코드는 `Fruits()` 함수의 인스턴스를 생성하는 과정이에요. 여기서 `new` 연산자는 어떤 과정을 통해 `Fruits()` 함수의 인스턴스를 만들까요?
+
+<br />
+
+## 1. 빈 객체를 생성
+
+먼저 `new` 연산자는 `Fruits`라는 새로운 빈 객체를 만들어요.
+
+<br />
+
+```javascript
+Fruits {}
+```
+
+<br />
+
+이 때 `Fruits()` 함수 내부에 있는 `this`는 새로 생성된 빈 객체를 바라보게 돼요.
+
+<br />
+
+## 2. 함수 내부의 문(statements)을 빈 객체에 할당
+
+다음으로 `Fruits()` 함수 내부에 있는 문을 `Fruits`라는 빈 객체의 속성으로 할당해요. 1번에서 에서 언급한 대로 `this`가 `Fruits`라는 빈 객체를 바라보기 때문에 가능한 일이에요.
+
+<br />
+
+```javascript
+Fruits {
+  apple: '🍎',
+  banana: '🍌'
+}
+```
+
+<br />
+
+## 결론
+
+`new` 연산자의 동작을 제대로 이해하기 위해서는 더 많은 내용을 알아야 해요. 그러나 기초적인 이해를 위해서는 이 정도만 알아도 꽤 도움이 될 거예요.
+
+`new` 연산자가 동작하는 내용을 자세히 알고 싶다면 첨부한 참고 자료를 확인해주세요.
+
+<br />
+
+## 참고 자료
+
+[new](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Operators/new#설명)
