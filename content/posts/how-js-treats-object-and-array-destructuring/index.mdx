@@ -1,0 +1,95 @@
+---
+title: 자바스크립트가 destructuring을 다루는 방법
+date: 2024-07-07
+description: 객체와 배열에 전개 구문을 사용할 때 어떤 차이가 생기는지 알아야 에러를 피할 수 있어요.
+tags:
+  - javascript
+  - destructuring
+  - object
+  - array
+---
+
+다음 중 에러를 발생시키는 코드는 무엇일까요?
+
+<br />
+
+1. `consolo.log({ apple: '🍎', ...{} })`
+1. `consolo.log({ apple: '🍎', ...null })`
+1. `consolo.log({ apple: '🍎', ...false })`
+1. `console.log(['🍎', ...[]])`
+1. `console.log(['🍎', ...null])`
+1. `console.log(['🍎', ...false])`
+
+<br />
+
+정답은 5번과 6번이에요.
+
+그런데 이상하죠? 객체에서는 `null`과 `false`를 destructure 해도 괜찮은데, 배열에서만 문제가 생겨요. 왜 그럴까요?
+
+<br />
+
+## 자바스크립트가 객체 destructuring과 배열 destructuring을 다루는 방법
+
+자바스크립트에서는 객체 destructuring을 다룰 때 `null`과 `false`를 빈 객체로 취급해요. 따라서 `...null`과 `...false`는 `...{}`와 동일한 결과가 발생하지요.
+
+그렇기에 다음과 같은 코드는 에러를 발생시키지 않아요.
+
+<br />
+
+```javascript
+const bool = false
+const obj = {
+  apple: '🍎',
+  ...null,
+  ...(bool && { banana: '🍌' }),
+  ...(bool ? { cherries: '🍒' } : {}),
+}
+
+console.log(obj) // { apple: '🍎' }
+```
+
+<br />
+
+그렇지만 배열 destructuring은 달라요. 배열 destructuring은 `null`과 `false`를 빈 배열로 취급하지 않아요. 왜냐 하면 배열 안에서 전개 구문을 사용할 때는 destructure 하는 대상은 `Symbol.iterator` 타입을 가지고 있어야 하거든요.
+
+브라우저의 console 창에 배열의 로그를 찍어보면 `prototype`에 다음 속성이 있음을 확인할 수 있어요.
+
+<br />
+
+`Symbol(Symbol.iterator)`
+
+<br />
+
+그렇지만 `null`이나 `false`는 `Symbol(Symbol.iterator)` 속성이 없기 때문에 destructure 할 수 없어요.
+
+이런 이유로 다음과 같은 코드는 객체 destructuring과 달리 에러를 발생시켜요.
+
+<br />
+
+```javascript
+const bool = false
+const banana = ['🍌']
+
+const arr1 = ['🍎', ...(bool && banana)]
+console.log(arr1) // TypeError: (bool && banana) is not iterable ...
+
+const arr2 = ['🍎', ...null]
+console.log(arr2) // TypeError: null is not iterable ...
+```
+
+<br />
+
+타입스크립트에서는 `arr1`과 `arr2`에 대해 각각 다음과 같은 에러를 발생시켜요.
+
+<br />
+
+- arr1: `TS2488: Type 'false | string[]' must have a '[Symbol.iterator]()' method that returns an iterator.`
+- arr2: `TS2488: Type 'null' must have a '[Symbol.iterator]()' method that returns an iterator.`
+
+<br />
+
+## 결론
+
+알고 보면 별것 아니지만, 모를 때는 객체와 배열 destructuring이 동작하는 방식을 동일하게 생각했다가 예상 못한 에러를 만날 수 있어요.
+
+다행히 어려운 문제가 아니라 금방 해결할 수는 있겠지만, 알아두면 시간을 아낄 수 있겠죠?
