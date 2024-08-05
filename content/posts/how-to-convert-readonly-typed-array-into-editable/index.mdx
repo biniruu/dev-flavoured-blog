@@ -1,0 +1,59 @@
+---
+title: 읽기전용 튜플 타입을 배열 타입으로 바꾸면 어떤 일이 벌어질까?
+date: 2024-08-06
+description: 별일은 아니지만 알아둬서 나쁠 건 없다.
+tags:
+  - TypeScript
+  - Array
+---
+
+읽기전용(Readonly) 튜플 타입에는 재할당이 불가능해요.
+
+<br />
+
+```typescript
+const fruits = ['🍎', '🍌', '🍒']
+
+fruits[0] = '🍉' // ['🍉', '🍌', '🍒']
+
+const foods = ['🍔', '🍕', '🍣'] as const
+
+foods[0] = '🍟' // Error: Cannot assign to '0' because it is a read-only property.
+```
+
+<br />
+
+위 코드에서 `foods`에는 재할당이 안 되고 있어요. `foods`의 타입이 `readonly ['🍔', '🍕', '🍣']`라서 그래요.
+
+<br />
+
+```typescript
+const fruits = ['🍎', '🍌', '🍒'] // string[]
+
+const foods = ['🍔', '🍕', '🍣'] as const // readonly ['🍔', '🍕', '🍣']
+```
+
+<br />
+
+그런데 `foods`에 감자튀김을 꼭 추가하고 싶어요. 햄버거와 감자튀김은 영혼의 단짝이니까요.
+
+그래서 다음과 같이 읽기전용 튜플 타입을 배열 타입으로 변경하여 다시 시도해봤어요.
+
+<br />
+
+```typescript
+const foods = ['🍔', '🍕', '🍣'] as const // readonly ['🍔', '🍕', '🍣']
+const newFruits = [...foods] // ('🍔' | '🍕' | '🍣')[]
+
+newFruits[0] = '🍟' // Error: Type '"🍟"' is not assignable to type '"🍔" | "🍕" | "🍣"'.
+```
+
+<br />
+
+이럴수가. 배열 타입이긴 해도 값이 유니언인 배열이라 감자튀김을 추가할 수 없어요.
+
+이런 경우에는 다음 방법 중에서 선택해 문제를 해결해야 해요.
+
+- `const foods = ['🍟', '🍔', '🍕', '🍣']`로 변수를 바꿔요. 처음부터 감자튀김을 추가했으니 나중에 할당할 필요는 없겠네요.
+- `const newFruits = [...foods] as ('🍟' | '🍔' | '🍕' | '🍣')[] 처럼 type assertion으로 타입을 바꿔줘요.
+- 감자튀김을 포기하면 문제가 생기지 않아요.🤓
