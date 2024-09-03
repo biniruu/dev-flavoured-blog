@@ -1,0 +1,238 @@
+---
+title: 어쩌면 까다로울 수 있는 eslint flat config 설정하기 2 - eslint-plugin-import 추가하기
+date: 2024-09-04
+description: flat config를 공식적으로 지원하지 않는 플러그인을 ESLint 설정파일에 추가해보아요.
+tags:
+  - ESLint
+---
+
+## eslint-plugin-import란?
+
+간단히 말해서 **eslint-plugin-import** 플러그인은 import 한 모듈 목록을 관리하는 기능을 제공해요. 그런데 왜 **eslint-plugin-import**를 추가해야 할까요?
+
+사실 굳이 이 플러그인을 추가할 필요는 없어요. 다만 여기서는 **flat config**를 아직 지원하지 않는 플러그인을 어떻게 추가해야 하는지 설명하기 위해 **eslint-plugin-import**를 선택했을 뿐이에요.
+
+<br />
+
+## eslint-plugin-import 공식문서에 올라온, 반드시 실패하는 eslint-plugin-import 설치 방법
+
+우선 패키지부터 설치해야겠죠?
+
+<br />
+
+```bash
+yarn add -D eslint-plugin-import
+```
+
+<br />
+
+**eslint-plugin-import** [공식문서](https://github.com/import-js/eslint-plugin-import#config---flat-eslintconfigjs)에서는 다음과 같이 **flat config**에 플러그인을 추가하는 방법을 제시하고 있어요.
+
+<br />
+
+```javascript
+import importPlugin from 'eslint-plugin-import';
+import js from '@eslint/js';
+
+export default [
+  js.configs.recommended,
+  importPlugin.flatConfigs.recommended,
+  {
+    files: ['**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      'import/no-dynamic-require': 'warn',
+      'import/no-nodejs-modules': 'warn',
+    },
+  },
+];
+```
+
+<br />
+
+음... 우선 제가 이전 글에서 설명했던 **@eslint/js** 추가 방법과는 다른 방식으로 **@eslint/js**를 추가했네요. 혹시 지난 편에서 만들었던 설정파일 기억하시나요?
+
+<br />
+
+```javascript
+// eslint.config.js
+
+import js from '@eslint/js';
+
+export default [
+  {
+    rules: {
+      ...js.configs.recommended.rules,
+      semi: 'error',
+      'prefer-const': 'error',
+    },
+  },
+];
+```
+
+<br />
+
+전혀 다르죠? 하지만 괜찮아요. 저렇게 해도 전혀 문제없답니다.
+
+다만 여기서 알아둬야 할 점은, 예전에는 `js.configs.recommended`를 `extends` 옵션에 추가했지만 **flat config**에서는 `extends` 옵션이 사라지고 위 코드처럼 배열에 직접 추가하는 방식으로 바뀌었다는 점이에요. 마찬가지로 다른 플러그인의 extend도 배열에 직접 추가하는 방식으로 사용하면 돼요.
+
+다시 돌아와서, **flat config**에 **eslint-plugin-import**를 추가하기 위해 공식문서에서 제공한 코드와 동일하게 코드를 추가하면 다음과 같은 에러가 발생해요.
+
+<br />
+
+> TypeError: Cannot read properties of undefined (reading 'recommended')
+
+<br />
+
+실제로 `importPlugin`의 내용을 살펴보려고 하면 아무 것도 확인할 수 없어요. **eslint-plugin-import**에서 default로 export 하는 모듈이 없어서 그래요.
+
+<br />
+
+```javascript
+// eslint-plugin-import > lib > index.js
+
+'use strict';Object.defineProperty(exports, "__esModule", { value: true });var rules = exports.rules = {
+  'no-unresolved': require('./rules/no-unresolved'),
+  ...
+  // deprecated aliases to rules
+  'imports-first': require('./rules/imports-first') };
+
+
+var configs = exports.configs = {
+  recommended: require('../config/recommended'),
+  ...
+  typescript: require('../config/typescript') };
+```
+
+<br />
+
+`importPlugin.flatConfigs`가 `undefined`이기 때문에 `importPlugin.flatConfigs.recommended,`에서 에러가 날 수밖에 없는 상황이에요. 제가 이전 글에서 이야기했던 추가 작업이란, 이 문제를 해결하기 위한 것이고요.
+
+그럼 이제 **eslint-plugin-import**를 추가하기 위한 작업을 진행해볼게요.
+
+<br />
+
+## eslint-plugin-import 추가하기
+
+먼저 **@eslint/eslintrc**와 **@eslint/compat** 패키지를 설치해주세요.
+
+<br />
+
+```bash
+yarn add -D @eslint/eslintrc @eslint/compat
+```
+
+<br />
+
+이제 본격적으로 **eslint-plugin-import**을 추가해볼게요. 먼저 추천 rule을 추가하는 것부터 해볼 거예요.
+
+지난 편에서 만들었던 설정파일에 다음과 같이 추천 rule을 추가해주세요.
+
+<br />
+
+```javascript
+import js from '@eslint/js'
+import { fixupConfigRules } from "@eslint/compat"
+import { FlatCompat } from '@eslint/eslintrc'
+import { configs as eslintPluginImportConfigs } from 'eslint-plugin-import'
+
+const flatCompat = new FlatCompat();
+
+export default [
+  ...fixupConfigRules(flatCompat.config(eslintPluginImportConfigs.recommended))
+  {
+    rules: {
+      ...js.configs.recommended.rules,
+      semi: 'error',
+      'prefer-const': 'error',
+    },
+  },
+]
+```
+
+<br />
+
+이렇게 하면 **eslint-plugin-import** 추천 rule을 사용할 수 있어요.
+
+다음으로는 rule을 직접 추가하거나 수정하기 위해 `plugins`에 **eslint-plugin-import**를 추가하는 방법을 알아볼게요. 아래 코드의 주석에서 설명하는 대로 `fixupPluginRules`를 사용해서 추가하세요.
+
+<br />
+
+```javascript
+import js from '@eslint/js'
+// fixupPluginRules를 import 해요
+import { fixupConfigRules, fixupPluginRules } from "@eslint/compat"
+import { FlatCompat } from '@eslint/eslintrc'
+// importPlugin은 "* as importPlugin"의 단축형이에요
+import importPlugin, { configs as eslintPluginImportConfigs } from 'eslint-plugin-import'
+
+const flatCompat = new FlatCompat();
+
+export default [
+  ...fixupConfigRules(flatCompat.config(eslintPluginImportConfigs.recommended))
+  {
+    plugins: {
+      // key는 import 외에 다른 것을 사용해도 돼요. 여기서 결정한 key가 rule의 접두사가 되니 이 점을 고려해서 지어주세요
+      import: fixupPluginRules(importPlugin),
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      semi: 'error',
+      'prefer-const': 'error',
+      // 이제 'import' 접두사를 붙여서 rule을 추가할 수 있어요
+      'import/consistent-type-specifier-style': 'warn',
+      'import/newline-after-import': ['warn', { exactCount: true, considerComments: true }],
+    },
+  },
+]
+```
+
+<br />
+
+드디어 **eslint-plugin-import**를 **flat config**에서 사용할 수 있게 됐어요.
+
+만일 **eslint-plugin-import** 추천 rule을 사용할 생각이 없다면 **@eslint/compat**만 사용하면 돼요.
+
+<br />
+
+```javascript
+import js from '@eslint/js';
+import { fixupPluginRules } from '@eslint/compat';
+import importPlugin from 'eslint-plugin-import';
+
+export default [
+  {
+    plugins: {
+      import: fixupPluginRules(importPlugin),
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      semi: 'error',
+      'prefer-const': 'error',
+      'import/consistent-type-specifier-style': 'warn',
+      'import/newline-after-import': ['warn', { exactCount: true, considerComments: true }],
+    },
+  },
+];
+```
+
+<br />
+
+다음 편에서는 TypeScript 사용자를 위해 **typescript-eslint**를 추가하는 방법을 알려드릴게요.
+
+<br />
+
+## 참고 자료
+
+- https://github.com/import-js/eslint-plugin-import/issues/2556#issuecomment-2267581659
+- https://github.com/import-js/eslint-plugin-import/issues/2556#issuecomment-2272395246
+
+<br />
+
+## 연재
+
+[어쩌면 까다로울 수 있는 eslint flat config 설정하기 1 - 새 설정파일 만들기](/어쩌면-까다로울-수-있는-eslint-flat-config-설정하기-1-새-설정파일-만들기)
