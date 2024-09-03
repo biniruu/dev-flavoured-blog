@@ -1,0 +1,92 @@
+---
+title: 어쩌면 까다로울 수 있는 eslint flat config 설정하기 1 - 새 설정파일 만들기
+date: 2024-09-03
+description: ESLint 버전 9부터 도입된 새로운 설정 파일로 넘어가 보아요.
+tags:
+  - ESLint
+---
+
+## 사건의 발단
+
+비상!🚨 ESLint 팀에서 공식 발표한 내용이에요! 2024년 10월 5일 이후로 버전 8 이하인 ESLint에 대해서는 손을 떼겠다고 해요.
+
+<br />
+
+> ESLint v8.x end-of-life is 2024-10-05 and will not be maintained after that. [Upgrade](https://eslint.org/docs/latest/use/migrate-to-9.0.0) or consider [long-term support options](https://eslint.org/version-support/)
+
+<br />
+
+이제는 버전 9 이후로 도입된 **flat config** 방식으로 ESLint 설정 파일을 변경해야 해요.
+
+그런데 ESLint 설정을 해보지 않았다면 또는 설정파일 구조에 익숙하지 않다면 공식문서에 있는 설정 방법을 보더라도 어렵게 느껴질 수 있어요. 기존 방식과 많이 다르기도 하고, 새로운 설정 방식을 아직 지원하지 않는 플러그인도 있거든요.
+
+여기서는 제가 직접 새로운 방식으로 설정파일을 만들면서 알게 된 점을 알려드릴 거에요. 혹시라도 설정 과정에서 어려운 점이 있을 때 보면 도움이 될 거라고 생각해요.☺️
+
+<br />
+
+## 새 설정파일 만들기
+
+먼저 파일명이 바뀌었어요. 파일명은 **eslint.config.js**나 **eslint.config.ts**처럼 **eslint.config.\*** 방식으로 지어야 해요. 자세한 내용은 [Configuration File](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-file)에서 확인할 수 있어요.
+
+이제 파일을 만들어볼 거예요. 공식 문서에 나온 대로 최소한의 rule을 가진 파일을 만들어볼게요.
+
+<br />
+
+```javascript
+// eslint.config.js
+
+export default [
+  {
+    rules: {
+      semi: 'error',
+      'prefer-const': 'error',
+    },
+  },
+]
+```
+
+<br />
+
+축하합니다.👏🏻 이제 여러분은 새로운 설정 파일을 사용해서 프로젝트에 ESLint를 반영할 수 있게 됐어요. 어때요? 참 쉽죠?
+
+여기서 이전 설정 방식과 달라진 점이 하나 있어요. 파일이 배열을 내보낸다는 것이에요. 이전에는 객체를 내보냈었어요. 참고로 알아두면 좋지만, 만일 이전에 ESLint 설정을 해본 적이 없다면 신경쓰지 않아도 괜찮아요.
+
+<br />
+
+## ESLint 추천 rule 추가하기
+
+다음은 가장 기초적인 작업이에요. ESLint에서 공식적으로 제공하는 추천 rule을 추가해볼 거에요.
+
+먼저 패키지를 설치해야 해요. 여기서는 Yarn을 사용해서 추가할게요.
+
+<br />
+
+```bash
+yarn add -D @eslint/js
+```
+
+<br />
+
+이제 설정파일에 추천 rule을 추가할게요. 더 자세한 내용은 [문서](https://www.npmjs.com/package/@eslint/js)를 참고하세요.
+
+<br />
+
+```javascript
+import js from '@eslint/js'
+
+export default [
+  {
+    rules: {
+      ...js.configs.recommended.rules,
+      semi: 'error',
+      'prefer-const': 'error',
+    },
+  },
+]
+```
+
+<br />
+
+이렇게 하면 ESLint 팀에서 추천하는 rule을 활성화 시킬 수 있어요. 만일 그 아래로 추가하는 rule 중에 추천 rule과 동일한 rule이 있다면 추천 rule을 덮어쓰게 되고요.
+
+다음 편에서는 **eslint-plugin-import**를 추가하는 방법을 알려드릴게요. 아직 **eslint-plugin-import**가 **flat config**를 지원하지 않아서 **eslint-plugin-import**를 추가하기 위해서는 몇 가지 추가 작업이 필요해요. 이 작업을 다음 편에서 설명해드릴 거예요.
